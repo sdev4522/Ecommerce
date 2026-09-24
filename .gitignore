@@ -1,0 +1,31 @@
+# Larsavel
+backend/vendor/
+backend/node_modules/
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Laravel generated/public vendor assets
+backend/public/vendor/
+
+# Laravel runtime
+backend/storage/logs/
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+
+# Next.js
+storefront/node_modules/
+storefront/.next/
+storefront/out/
+storefront/.env
+storefront/.env.*
+!storefront/.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
