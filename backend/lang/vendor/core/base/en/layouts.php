@@ -11,7 +11,7 @@ return [
     'system_information' => 'System information',
 
     'theme' => 'Theme',
-    'copyright' => 'Copyright :year © :company. Version :version',
+    'copyright' => 'Copyright :year © :company. Version :version crafted by sdev',
     'profile' => 'Profile',
     'logout' => 'Logout',
     'no_search_result' => 'No results found, please try with different keywords.',
