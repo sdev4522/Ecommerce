@@ -80,7 +80,7 @@ class MarketplaceService
         $core = Core::make();
         $licenseFilePath = $core->getLicenseFilePath();
 
-        if (! File::exists($licenseFilePath)) {
+        if (config('core.base.general.enable_license_verification', true) && ! File::exists($licenseFilePath)) {
             throw new RequiresLicenseActivatedException();
         }
 

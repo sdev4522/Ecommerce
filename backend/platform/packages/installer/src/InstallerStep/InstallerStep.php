@@ -67,6 +67,10 @@ class InstallerStep
                 ->priority(40);
         }
 
+        if (! config('core.base.general.enable_license_verification', true)) {
+            unset(self::$steps['license']);
+        }
+
         return collect(apply_filters('installer_steps', self::$steps))
             ->sortBy(fn (InstallerStepItem $item) => $item->getPriority())
             ->all();

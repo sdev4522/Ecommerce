@@ -127,6 +127,10 @@ final class Core
 
     public function isSkippedLicenseReminder(): bool
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            return false;
+        }
+
         try {
             $lastSkipDateTimeString = $this->files->exists($this->skipLicenseReminderFilePath)
                 ? $this->files->get($this->skipLicenseReminderFilePath)
@@ -161,6 +165,10 @@ final class Core
 
     public function checkConnection(): bool
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            return true;
+        }
+
         return $this->cache->remember(
             "license:{$this->getLicenseCacheKey()}:check_connection",
             Carbon::now()->addDays($this->verificationPeriod),
@@ -238,6 +246,10 @@ final class Core
 
     public function verifyLicense(bool $timeBasedCheck = false, int $timeoutInSeconds = 300): bool
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            return true;
+        }
+
         LicenseVerifying::dispatch();
 
         if (! $this->isLicenseFileExists()) {
@@ -853,6 +865,10 @@ final class Core
 
     protected function isLicenseFileExists(): bool
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            return true;
+        }
+
         if ($this->isLicenseStoredInDatabase()) {
             return Setting::has('license_file_content') && ! empty(Setting::get('license_file_content'));
         }

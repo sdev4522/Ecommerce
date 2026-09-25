@@ -20,7 +20,7 @@ class UnlicensedController extends BaseController
 
         $this->validateRedirectUrl($request);
 
-        if ($this->core->verifyLicense(true)) {
+        if (! config('core.base.general.enable_license_verification', true) || $this->core->verifyLicense(true)) {
             return redirect()->route('dashboard.index');
         }
 

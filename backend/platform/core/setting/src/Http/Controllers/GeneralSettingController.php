@@ -55,6 +55,18 @@ class GeneralSettingController extends SettingController
 
     public function getVerifyLicense(Request $request, Core $core)
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            $data = [
+                'activated_at' => Carbon::now()->format('M d Y'),
+                'licensed_to' => setting('licensed_to', 'Development Mode (Verification Disabled)'),
+            ];
+
+            return $this
+                ->httpResponse()
+                ->setMessage('License verification is disabled in development mode.')
+                ->setData($data);
+        }
+
         if ($request->expectsJson() && ! $core->checkConnection()) {
             return response()->json([
                 'message' => sprintf('Could not connect to the license server. Please try again later. Your site IP: %s', $core->getServerIP()),

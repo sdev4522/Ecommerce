@@ -20,6 +20,10 @@ class LicenseController extends BaseController
 {
     public function index(): View|RedirectResponse
     {
+        if (! config('core.base.general.enable_license_verification', true)) {
+            return redirect()->to(URL::temporarySignedRoute('installers.final', Carbon::now()->addMinutes(30)));
+        }
+
         return view('packages/installer::license');
     }
 

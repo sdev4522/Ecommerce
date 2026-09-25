@@ -478,4 +478,5 @@ return [
     'iframe_regex' => env('CMS_IFRAME_FILTER_URL_REGEX', ''),
     'static_ip' => env('CMS_STATIC_IP'),
     'license_storage_method' => env('CMS_LICENSE_STORAGE_METHOD', 'file'), // 'file' or 'database'
+    'enable_license_verification' => env('CMS_ENABLE_LICENSE_VERIFICATION', env('ENABLE_LICENSE_VERIFICATION', true)),
 ];

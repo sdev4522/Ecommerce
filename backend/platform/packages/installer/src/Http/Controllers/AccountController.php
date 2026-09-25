@@ -49,8 +49,12 @@ class AccountController extends BaseController
 
             Auth::login($user);
 
+            $targetRoute = ! config('core.base.general.enable_license_verification', true)
+                ? 'installers.final'
+                : 'installers.licenses.index';
+
             return redirect()
-                ->to(URL::temporarySignedRoute('installers.licenses.index', Carbon::now()->addMinutes(30)));
+                ->to(URL::temporarySignedRoute($targetRoute, Carbon::now()->addMinutes(30)));
         } catch (Exception $exception) {
             return back()->withInput()->withErrors([
                 'first_name' => [$exception->getMessage()],
