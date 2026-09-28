@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import HeroSlider from "../components/home/HeroSlider";
 import TrustFeatures from "../components/home/TrustFeatures";
 import CategoryBanners from "../components/home/CategoryBanners";
-import BestSellersSection from "../components/home/BestSellersSection";
 import ProductCard from "../components/product/ProductCard";
 import BrandValues from "../components/home/BrandValues";
 import FAQSection from "../components/home/FAQSection";

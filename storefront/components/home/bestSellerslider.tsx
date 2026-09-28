@@ -1,22 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode, Pagination, Navigation } from "swiper/modules";
-import type { Swiper as SwiperType } from "swiper";
+import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, ArrowRight, Flame } from "lucide-react";
 
 import { Product } from "../../lib/types";
 import ProductCard from "../product/ProductCard";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
-
-// Swiper core & module styles
-import "swiper/css";
-import "swiper/css/free-mode";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
 
 export interface BestSellersSliderProps {
     products?: Product[];
@@ -37,7 +29,12 @@ export function BestSellersSlider({
         "all" | "dresses" | "tailoring" | "knitwear"
     >("all");
 
-    const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
+    const [emblaRef, emblaApi] = useEmblaCarousel({
+        align: "start",
+        containScroll: "trimSnaps",
+        dragFree: true,
+    });
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(true);
@@ -82,21 +79,42 @@ export function BestSellersSlider({
 
     const totalSlides = displayProducts.length;
 
-    // Reset swiper position when switching tabs
+    const onSelect = useCallback(() => {
+        if (!emblaApi) return;
+        setCurrentIndex(emblaApi.selectedScrollSnap());
+        setCanScrollPrev(emblaApi.canScrollPrev());
+        setCanScrollNext(emblaApi.canScrollNext());
+    }, [emblaApi]);
+
     useEffect(() => {
-        if (swiperInstance && !swiperInstance.destroyed) {
-            swiperInstance.slideTo(0);
+        if (!emblaApi) return;
+        onSelect();
+        emblaApi.on("select", onSelect);
+        emblaApi.on("reInit", onSelect);
+
+        return () => {
+            emblaApi.off("select", onSelect);
+            emblaApi.off("reInit", onSelect);
+        };
+    }, [emblaApi, onSelect]);
+
+    // Reset carousel position when switching tabs
+    useEffect(() => {
+        if (emblaApi) {
+            emblaApi.scrollTo(0);
             setCurrentIndex(0);
             setCanScrollPrev(false);
             setCanScrollNext(totalSlides > 1);
         }
-    }, [activeTab, swiperInstance, totalSlides]);
+    }, [activeTab, emblaApi, totalSlides]);
 
-    const updateNavigationState = (s: SwiperType) => {
-        setCurrentIndex(s.realIndex ?? s.activeIndex ?? 0);
-        setCanScrollPrev(!s.isBeginning);
-        setCanScrollNext(!s.isEnd);
-    };
+    const scrollPrev = useCallback(() => {
+        if (emblaApi) emblaApi.scrollPrev();
+    }, [emblaApi]);
+
+    const scrollNext = useCallback(() => {
+        if (emblaApi) emblaApi.scrollNext();
+    }, [emblaApi]);
 
     return (
         <section className="mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 border-t border-neutral-200 overflow-hidden">
@@ -136,62 +154,32 @@ export function BestSellersSlider({
                 )}
             </div>
 
-            {/* Swiper Slider Track */}
-            <div className="relative">
-                <Swiper
-                    modules={[FreeMode, Pagination, Navigation]}
-                    spaceBetween={16}
-                    slidesPerView={1.25}
-                    grabCursor={true}
-                    freeMode={{
-                        enabled: true,
-                        sticky: false,
-                        momentumRatio: 0.8,
-                    }}
-                    pagination={{
-                        clickable: true,
-                        dynamicBullets: true,
-                    }}
-                    breakpoints={{
-                        480: {
-                            slidesPerView: 1.6,
-                            spaceBetween: 16,
-                        },
-                        640: {
-                            slidesPerView: 2.2,
-                            spaceBetween: 18,
-                        },
-                        768: {
-                            slidesPerView: 3,
-                            spaceBetween: 20,
-                        },
-                        1024: {
-                            slidesPerView: 4,
-                            spaceBetween: 2,
-                        },
-                    }}
-                    onSwiper={(swiper) => {
-                        setSwiperInstance(swiper);
-                        updateNavigationState(swiper);
-                    }}
-                    onSlideChange={(swiper) => updateNavigationState(swiper)}
-                    className="bestseller-swiper !pb-12"
+            {/* Carousel Slider Track with Strict CSS Sizing to Eliminate CLS and Forced Reflows */}
+            <div className="relative min-h-[460px] sm:min-h-[500px]">
+                <div
+                    ref={emblaRef}
+                    className="overflow-hidden select-none cursor-grab active:cursor-grabbing"
                 >
-                    {displayProducts.map((product, idx) => (
-                        <SwiperSlide key={`${product.id}-${idx}`} className="h-auto">
-                            <div className="h-full">
-                                <ProductCard
-                                    product={product}
-                                    badgeText={idx % 2 === 0 ? "NEW" : undefined}
-                                />
+                    <div className="flex -ml-3 sm:-ml-4 pb-4">
+                        {displayProducts.map((product, idx) => (
+                            <div
+                                key={`${product.id}-${idx}`}
+                                className="min-w-0 shrink-0 grow-0 basis-[78%] sm:basis-[48%] md:basis-[32%] lg:basis-[24%] pl-3 sm:pl-4"
+                            >
+                                <div className="h-full">
+                                    <ProductCard
+                                        product={product}
+                                        badgeText={idx % 2 === 0 ? "NEW" : undefined}
+                                    />
+                                </div>
                             </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             {/* Bottom Controls: Slide Counter & Prev/Next Chevrons */}
-            <div className="mt-2 flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between">
                 <span className="text-xs font-mono font-medium text-neutral-700 select-none min-w-[36px] tracking-wide">
                     {totalSlides > 0
                         ? `${Math.min(currentIndex + 1, totalSlides)} / ${totalSlides}`
@@ -201,7 +189,7 @@ export function BestSellersSlider({
                 <div className="flex items-center gap-1.5">
                     <button
                         type="button"
-                        onClick={() => swiperInstance?.slidePrev()}
+                        onClick={scrollPrev}
                         disabled={!canScrollPrev}
                         className="p-1.5 rounded-full border border-neutral-200 text-neutral-700 hover:text-black hover:border-neutral-900 disabled:opacity-25 disabled:hover:text-neutral-700 disabled:hover:border-neutral-200 transition-all cursor-pointer disabled:cursor-not-allowed"
                         aria-label="Previous slide"
@@ -210,7 +198,7 @@ export function BestSellersSlider({
                     </button>
                     <button
                         type="button"
-                        onClick={() => swiperInstance?.slideNext()}
+                        onClick={scrollNext}
                         disabled={!canScrollNext}
                         className="p-1.5 rounded-full border border-neutral-200 text-neutral-700 hover:text-black hover:border-neutral-900 disabled:opacity-25 disabled:hover:text-neutral-700 disabled:hover:border-neutral-200 transition-all cursor-pointer disabled:cursor-not-allowed"
                         aria-label="Next slide"

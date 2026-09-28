@@ -24,7 +24,7 @@ export default function TrackingScripts({ tracking }: TrackingScriptsProps) {
             <>
                 <Script
                     id="botble-gtm"
-                    strategy="afterInteractive"
+                    strategy="lazyOnload"
                     dangerouslySetInnerHTML={{
                         __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -53,11 +53,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             <>
                 <Script
                     src={`https://www.googletagmanager.com/gtag/js?id=${cleanGaId}`}
-                    strategy="afterInteractive"
+                    strategy="lazyOnload"
                 />
                 <Script
                     id="botble-ga4-init"
-                    strategy="afterInteractive"
+                    strategy="lazyOnload"
                     dangerouslySetInnerHTML={{
                         __html: `
 window.dataLayer = window.dataLayer || [];
@@ -87,7 +87,7 @@ gtag('config', '${cleanGaId}', {
                 {cleanScript && (
                     <Script
                         id="botble-custom-tracking"
-                        strategy="afterInteractive"
+                        strategy="lazyOnload"
                         dangerouslySetInnerHTML={{ __html: cleanScript }}
                     />
                 )}
@@ -110,11 +110,11 @@ gtag('config', '${cleanGaId}', {
             <>
                 <Script
                     src={`https://www.googletagmanager.com/gtag/js?id=${cleanGaId}`}
-                    strategy="afterInteractive"
+                    strategy="lazyOnload"
                 />
                 <Script
                     id="botble-ga4-fallback"
-                    strategy="afterInteractive"
+                    strategy="lazyOnload"
                     dangerouslySetInnerHTML={{
                         __html: `
 window.dataLayer = window.dataLayer || [];

@@ -69,16 +69,19 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
 
     const [current, setCurrent] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const isFirstRender = useRef(true);
 
     // Touch Swipe tracking
     const touchStartX = useRef<number | null>(null);
     const touchEndX = useRef<number | null>(null);
 
     const nextSlide = useCallback(() => {
+        isFirstRender.current = false;
         setCurrent((prev) => (prev + 1) % activeSlides.length);
     }, [activeSlides.length]);
 
     const prevSlide = useCallback(() => {
+        isFirstRender.current = false;
         setCurrent(
             (prev) => (prev - 1 + activeSlides.length) % activeSlides.length,
         );
@@ -163,7 +166,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 <AnimatePresence mode="wait" initial={false}>
                     <motion.div
                         key={slide.id}
-                        initial={{ opacity: 0, scale: 1.05 }}
+                        initial={isFirstRender.current ? false : { opacity: 0, scale: 1.05 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -176,7 +179,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                             priority={current === 0}
                             fetchPriority={current === 0 ? "high" : "auto"}
                             loading={current === 0 ? "eager" : "lazy"}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1440px) 100vw, 1920px"
+                            sizes="100vw"
                             className="object-cover object-center"
                         />
                         {/* Deep Cinematic Monochrome Gradient */}
@@ -203,7 +206,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                                 key={slide.id}
-                                initial="hidden"
+                                initial={isFirstRender.current ? false : "hidden"}
                                 animate="visible"
                                 exit="exit"
                                 variants={{

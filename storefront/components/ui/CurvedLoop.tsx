@@ -49,12 +49,23 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
   const ready = spacing > 0;
 
   useEffect(() => {
-    if (measureRef.current) {
-      try {
-        setSpacing(measureRef.current.getComputedTextLength());
-      } catch {
-        setSpacing(text.length * 35);
+    const measure = () => {
+      if (measureRef.current) {
+        try {
+          const calculated = measureRef.current.getComputedTextLength();
+          if (calculated > 0) setSpacing(calculated);
+        } catch {
+          setSpacing(text.length * 35);
+        }
       }
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(measure, { timeout: 1000 });
+      return () => (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(id);
+    } else {
+      const id = requestAnimationFrame(measure);
+      return () => cancelAnimationFrame(id);
     }
   }, [text, className]);
 

@@ -62,6 +62,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  compress: true,
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -86,6 +88,10 @@ const nextConfig: NextConfig = {
           {
             key: "X-DNS-Prefetch-Control",
             value: "on",
+          },
+          {
+            key: "Link",
+            value: "<https://images.unsplash.com>; rel=preconnect; crossorigin, <https://fonts.googleapis.com>; rel=preconnect; crossorigin, <https://fonts.gstatic.com>; rel=preconnect; crossorigin",
           },
         ],
       },
