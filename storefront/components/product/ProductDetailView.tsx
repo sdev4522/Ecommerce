@@ -238,7 +238,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
     product.content!.trim().length > 30;
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-24 sm:pb-16 font-sans">
+    <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5 pb-20 sm:pb-16 font-sans">
       {/* Search Engine Structured Schema */}
       <script
         type="application/ld+json"
@@ -248,7 +248,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
       {/* ------------------------------------------------------------- */}
       {/* BREADCRUMB & UTILITY NAVIGATION                              */}
       {/* ------------------------------------------------------------- */}
-      <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-widest text-neutral-400 mb-6 sm:mb-8 border-b border-neutral-100 pb-3">
+      <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-widest text-neutral-400 mb-4 sm:mb-5 border-b border-neutral-100 pb-2.5">
         <nav
           aria-label="Breadcrumb"
           className="flex items-center gap-1.5 overflow-x-auto no-scrollbar whitespace-nowrap min-w-0 pr-1 py-0.5 font-display"
@@ -290,11 +290,11 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* MAIN PDP GRID: 7 COLS GALLERY + 5 COLS EDITORIAL INFO         */}
+      {/* MAIN PDP GRID: 6 COLS GALLERY + 6 COLS EDITORIAL INFO         */}
       {/* ------------------------------------------------------------- */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-12 items-start">
         {/* LEFT COLUMN: Editorial Product Image Gallery */}
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 flex justify-center">
           <ProductGallery
             images={images}
             productName={product.name}
@@ -304,7 +304,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
         </div>
 
         {/* RIGHT COLUMN: Elevated Luxury Purchasing & Specification Panel */}
-        <div className="lg:col-span-5 flex flex-col space-y-6 lg:sticky lg:top-24">
+        <div className="lg:col-span-5 flex flex-col space-y-5 lg:sticky lg:top-20">
           {/* Header & Product Hierarchy */}
           <div className="border-b border-neutral-100 pb-5 space-y-2.5">
 
