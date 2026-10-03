@@ -147,7 +147,7 @@ export default function ProductGallery({
       {/* ------------------------------------------------------------- */}
       {/* DESKTOP GALLERY (Left Vertical Thumbnails + Right Main Stage)  */}
       {/* ------------------------------------------------------------- */}
-      <div className="hidden lg:flex flex-row gap-3 xl:gap-4 w-full max-w-[680px] items-start">
+      <div className="hidden mx-auto lg:flex flex-row gap-3 xl:gap-4 w-full max-w-[800px] items-start">
         {/* Left Vertical Thumbnails Rail */}
         {hasMultiple && (
           <div
@@ -168,11 +168,10 @@ export default function ProductGallery({
                   tabIndex={0}
                   onKeyDown={(e) => handleKeyDownThumbnail(e, idx)}
                   onClick={() => selectImage(idx)}
-                  className={`relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 transition-all duration-200 cursor-pointer shrink-0 ${
-                    isSelected
-                      ? 'border-2 border-neutral-950 ring-2 ring-neutral-950/20 shadow-xs scale-[0.98]'
-                      : 'border border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 hover:scale-[1.02]'
-                  }`}
+                  className={`relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 transition-all duration-200 cursor-pointer shrink-0 ${isSelected
+                    ? 'border-2 border-neutral-950 ring-2 ring-neutral-950/20 shadow-xs scale-[0.98]'
+                    : 'border border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 hover:scale-[1.02]'
+                    }`}
                   aria-label={`View photo ${idx + 1} of ${images.length}`}
                 >
                   <Image
@@ -190,7 +189,7 @@ export default function ProductGallery({
 
         {/* Dominant Main Visual Stage */}
         <div
-          className="relative flex-1 aspect-[4/5] max-h-[580px] bg-neutral-100/90 rounded-2xl sm:rounded-3xl overflow-hidden cursor-zoom-in group border border-neutral-200/60 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-neutral-950"
+          className="relative flex-1 aspect-[9/10] max-h-[700px] bg-neutral-100/90 rounded-2xl sm:rounded-3xl overflow-hidden cursor-zoom-in group border border-neutral-200/60 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-neutral-950"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onMouseMove={handleMouseMove}
@@ -216,14 +215,13 @@ export default function ProductGallery({
                 priority={selectedIndex === 0}
                 loading={selectedIndex === 0 ? 'eager' : 'lazy'}
                 sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 520px, 600px"
-                className={`object-cover object-top transition-transform duration-300 ${
-                  isHovered ? 'scale-135' : 'scale-100'
-                }`}
+                className={`object-cover object-top transition-transform duration-300 ${isHovered ? 'scale-135' : 'scale-100'
+                  }`}
                 style={
                   isHovered
                     ? {
-                        transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-                      }
+                      transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
+                    }
                     : undefined
                 }
               />
@@ -349,11 +347,10 @@ export default function ProductGallery({
                   key={idx}
                   type="button"
                   onClick={() => selectImage(idx)}
-                  className={`transition-all duration-300 rounded-full cursor-pointer ${
-                    isSelected
-                      ? 'w-5 h-1.5 bg-neutral-950'
-                      : 'w-1.5 h-1.5 bg-neutral-300 hover:bg-neutral-400'
-                  }`}
+                  className={`transition-all duration-300 rounded-full cursor-pointer ${isSelected
+                    ? 'w-5 h-1.5 bg-neutral-950'
+                    : 'w-1.5 h-1.5 bg-neutral-300 hover:bg-neutral-400'
+                    }`}
                   aria-label={`Go to photo ${idx + 1}`}
                 />
               );
