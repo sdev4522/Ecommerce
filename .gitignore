@@ -27,5 +27,8 @@ storefront/.env.*
 .vscode/
 .DS_Store
 
+# Docs
+.agents
+
 # Logs
 *.log
