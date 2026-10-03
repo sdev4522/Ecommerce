@@ -1,3 +1,13 @@
+export interface CurrencyConfig {
+  code: string;
+  symbol: string;
+  name?: string;
+  position: 'before' | 'after';
+  decimal_places: number;
+  decimal_separator: string;
+  thousand_separator: string;
+}
+
 export interface ProductVariationAttribute {
   id: number;
   slug: string;
@@ -7,20 +17,42 @@ export interface ProductVariationAttribute {
   color?: string; // hex code if color
 }
 
+export interface ProductAttribute {
+  id: number;
+  title: string;
+  slug: string;
+  color?: string;
+  image?: string;
+  order?: number;
+}
+
+export interface ProductAttributeSet {
+  id: number;
+  title: string;
+  slug: string;
+  order?: number;
+  display_layout?: string;
+  use_image_from_product_variation?: boolean;
+  attributes: ProductAttribute[];
+}
+
 export interface ProductVariation {
   id: number;
-  name: string;
+  product_id?: number;
+  name?: string;
   sku: string;
   price: number;
-  formatted_price: string;
+  formatted_price?: string;
   sale_price?: number;
   formatted_sale_price?: string;
   original_price: number;
   formatted_original_price?: string;
   quantity: number;
   is_out_of_stock: boolean;
-  stock_status_label: string;
+  stock_status_label?: string;
+  is_default?: boolean;
   selected_attributes?: ProductVariationAttribute[];
+  attributes?: Record<string, string>;
   image_url?: string;
 }
 
@@ -68,6 +100,7 @@ export interface Product {
   fit?: string;
   model_info?: string;
   variations?: ProductVariation[];
+  attribute_sets?: ProductAttributeSet[];
   specifications?: Array<{
     name: string;
     value: string;
@@ -107,6 +140,7 @@ export interface CartItem {
   size?: string;
   color?: string;
   colorHex?: string;
+  sku?: string;
   max_qty: number;
 }
 
@@ -154,6 +188,8 @@ export interface CustomerOrder {
   status_label?: string;
   amount: number;
   formatted_amount: string;
+  currency?: string;
+  currency_symbol?: string;
   sub_total?: number;
   shipping_amount?: number;
   tax_amount?: number;

@@ -29,6 +29,8 @@ interface InstantCheckoutModalProps {
   selectedColorHex?: string;
   activeImage: string;
   quantity: number;
+  variationId?: number;
+  variationPrice?: number;
 }
 
 export default function InstantCheckoutModal({
@@ -40,6 +42,8 @@ export default function InstantCheckoutModal({
   selectedColorHex,
   activeImage,
   quantity,
+  variationId,
+  variationPrice,
 }: InstantCheckoutModalProps) {
   // Form fields
   const [fullName, setFullName] = useState('');
@@ -100,7 +104,7 @@ export default function InstantCheckoutModal({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            items: [{ product_id: product.id, qty: quantity }],
+            items: [{ product_id: product.id, variation_id: variationId, qty: quantity }],
             address: {
               name: fullName,
               phone: phone,
@@ -115,13 +119,15 @@ export default function InstantCheckoutModal({
         const data = await res.json();
         if (!isMounted) return;
 
+        const effectivePrice = variationPrice ?? product.price;
+
         if (res.ok && data.success && data.data) {
           setBackendTotals({
-            subtotal: Number(data.data.subtotal) || product.price * quantity,
+            subtotal: Number(data.data.subtotal) || effectivePrice * quantity,
             shippingFee: Number(data.data.shippingFee) || 0,
             shippingMethodName: data.data.shippingMethodName || 'Standard Delivery',
             isFreeShipping: Boolean(data.data.isFreeShipping),
-            grandTotal: Number(data.data.grandTotal) || product.price * quantity,
+            grandTotal: Number(data.data.grandTotal) || effectivePrice * quantity,
           });
           setShippingError(null);
         } else {
@@ -143,13 +149,14 @@ export default function InstantCheckoutModal({
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [isOpen, product.id, quantity, pincode]);
+  }, [isOpen, product.id, quantity, pincode, variationId, variationPrice]);
 
   if (!isOpen) return null;
 
-  const itemTotal = backendTotals?.subtotal ?? product.price * quantity;
+  const baseItemPrice = variationPrice ?? product.price;
+  const itemTotal = backendTotals?.subtotal ?? baseItemPrice * quantity;
   const shippingFee = backendTotals !== null ? backendTotals.shippingFee : null;
-  const finalTotal = backendTotals !== null ? backendTotals.grandTotal : product.price * quantity;
+  const finalTotal = backendTotals !== null ? backendTotals.grandTotal : baseItemPrice * quantity;
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,9 +185,10 @@ export default function InstantCheckoutModal({
         items: [
           {
             product_id: product.id,
+            variation_id: variationId,
             product_name: product.name,
             qty: quantity,
-            price: product.price,
+            price: baseItemPrice,
             image: activeImage,
             options: {
               size: selectedSize,

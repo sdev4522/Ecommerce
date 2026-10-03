@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductDetailView from "../../../components/product/ProductDetailView";
 import { getProductBySlug, getProducts } from "../../../lib/botble";
+import { getSiteSettings } from "../../../lib/site-config";
 
 interface ProductPageProps {
     params: Promise<{
@@ -60,7 +61,10 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
     const resolvedParams = await params;
-    const product = await getProductBySlug(resolvedParams.slug);
+    const [siteSettings, product] = await Promise.all([
+        getSiteSettings(),
+        getProductBySlug(resolvedParams.slug),
+    ]);
 
     if (!product) {
         notFound();
@@ -80,12 +84,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         sku: product.sku || `SKU-${product.id}`,
         brand: {
             "@type": "Brand",
-            name: "LUNE",
+            name: product.brand?.name || "LUNE",
         },
         offers: {
             "@type": "Offer",
             url: `${siteUrl}/product/${product.slug}`,
-            priceCurrency: "INR",
+            priceCurrency: siteSettings.currency?.code || "INR",
             price: product.price,
             availability:
                 product.is_out_of_stock || product.quantity <= 0
@@ -93,6 +97,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     : "https://schema.org/InStock",
             itemCondition: "https://schema.org/NewCondition",
         },
+        ...(product.reviews_count && product.reviews_count > 0
+            ? {
+                aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: product.reviews_avg || 5,
+                    reviewCount: product.reviews_count,
+                },
+            }
+            : {}),
     };
 
     const allProducts = await getProducts({ per_page: 8 });

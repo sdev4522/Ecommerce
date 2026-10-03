@@ -1,5 +1,6 @@
 import { Product, ProductCategory, BlogPost, BlogCategory, ProductReview } from './types';
 import { MOCK_PRODUCTS, MOCK_CATEGORIES } from './mock-data';
+import { formatPrice } from './utils';
 
 const BOTBLE_API_URL = process.env.NEXT_PUBLIC_BOTBLE_API_URL || 'http://localhost:8000/api/v1';
 const BOTBLE_URL = process.env.NEXT_PUBLIC_BOTBLE_URL || 'http://localhost:8000';
@@ -55,6 +56,9 @@ export async function fetchBotbleAPI<T>(endpoint: string, options: FetchOptions 
       }
       if (json.default_product_variation) {
         json.data.default_product_variation = json.default_product_variation;
+      }
+      if (json.variations) {
+        json.data.variations = json.variations;
       }
     }
     return json.data || json;
@@ -165,9 +169,9 @@ export function normalizeProduct(p: any): Product {
     description: p.description || '',
     content: p.content || p.description || '',
     price,
-    price_formatted: p.price_formatted || `₹${price.toLocaleString('en-IN')}`,
+    price_formatted: p.price_formatted || formatPrice(price),
     original_price: originalPrice,
-    original_price_formatted: p.original_price_formatted || `₹${originalPrice.toLocaleString('en-IN')}`,
+    original_price_formatted: p.original_price_formatted || formatPrice(originalPrice),
     is_out_of_stock: Boolean(p.is_out_of_stock),
     quantity: p.quantity ?? 10,
     images,
@@ -206,8 +210,33 @@ export function normalizeProduct(p: any): Product {
     })(),
     fabric: materials,
     fit: p.fit || undefined,
-    model_info: p.model_info || undefined,
-    variations: p.variations || [],
+    variations: Array.isArray(p.variations)
+      ? p.variations.map((v: any) => {
+          const vPrice = Number(v.price) || price;
+          const vOriginalPrice = Number(v.original_price) || vPrice;
+          const vSalePrice = v.sale_price !== null && v.sale_price !== undefined ? Number(v.sale_price) : undefined;
+          return {
+            id: v.id,
+            product_id: v.product_id,
+            name: v.name || p.name,
+            sku: v.sku || `${p.sku}-${v.id}`,
+            price: vPrice,
+            formatted_price: formatPrice(vPrice),
+            sale_price: vSalePrice,
+            formatted_sale_price: vSalePrice ? formatPrice(vSalePrice) : undefined,
+            original_price: vOriginalPrice,
+            formatted_original_price: formatPrice(vOriginalPrice),
+            quantity: typeof v.quantity === 'number' ? v.quantity : 10,
+            is_out_of_stock: Boolean(v.is_out_of_stock),
+            stock_status_label: v.stock_status_label || (v.is_out_of_stock ? 'Out of stock' : 'In stock'),
+            is_default: Boolean(v.is_default),
+            selected_attributes: v.selected_attributes || [],
+            attributes: v.attributes || {},
+            image_url: cleanImageUrl(v.image_url || v.image) || mainImage,
+          };
+        })
+      : [],
+    attribute_sets: Array.isArray(p.attribute_sets) ? p.attribute_sets : undefined,
     specifications: specifications.length > 0 ? specifications : undefined,
     materials,
     care,

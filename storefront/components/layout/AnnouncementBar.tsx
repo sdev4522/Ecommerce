@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import type { HeaderMessage } from "@/lib/site-config";
+import { useCurrency } from "@/components/providers/CurrencyProvider";
 
 interface AnnouncementBarProps {
     messages?: HeaderMessage[];
@@ -15,6 +16,7 @@ export default function AnnouncementBar({
     phone,
     email,
 }: AnnouncementBarProps) {
+    const { currency, formatPrice } = useCurrency();
     const [index, setIndex] = useState(0);
 
     const activeMessages = messages && messages.length > 0 ? messages : null;
@@ -70,7 +72,7 @@ export default function AnnouncementBar({
                             )}
                         </span>
                     ) : (
-                        "Free express shipping on orders over ₹1,999"
+                        `Free express shipping on orders over ${formatPrice(1999)}`
                     )}
                 </div>
 
@@ -85,7 +87,7 @@ export default function AnnouncementBar({
                     ) : (
                         <>
                             <span className="cursor-pointer hover:text-white transition-colors">
-                                Currency: INR (₹)
+                                Currency: {currency.code} ({currency.symbol})
                             </span>
                             <span>•</span>
                             <span className="cursor-pointer hover:text-white transition-colors">

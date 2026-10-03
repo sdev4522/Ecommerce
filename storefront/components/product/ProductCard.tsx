@@ -7,6 +7,7 @@ import { Heart, ShoppingBag, Check } from 'lucide-react';
 import { Product } from '../../lib/types';
 import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
+import { useCurrency } from '../providers/CurrencyProvider';
 import { toast } from 'sonner';
 
 interface ProductCardProps {
@@ -31,6 +32,7 @@ export default function ProductCard({
   className = '',
   badgeText,
 }: ProductCardProps) {
+  const { formatPrice } = useCurrency();
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -184,13 +186,13 @@ export default function ProductCard({
           {/* Pricing */}
           <div className="mt-1 flex items-center gap-2">
             <span className="text-sm font-bold text-neutral-950 font-sans">
-              {product.price_formatted}
+              {formatPrice(product.price)}
             </span>
 
             {product.original_price &&
               product.original_price > product.price && (
                 <span className="text-xs text-neutral-400 line-through font-sans">
-                  {product.original_price_formatted}
+                  {formatPrice(product.original_price)}
                 </span>
               )}
           </div>

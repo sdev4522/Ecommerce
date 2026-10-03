@@ -128,7 +128,7 @@ class ProductController extends BaseApiController
         // Get product variations info for filtering unavailable attributes
         $productVariations = ProductVariation::query()
             ->where('configurable_product_id', $product->id)
-            ->with(['productAttributes', 'product'])
+            ->with(['productAttributes.productAttributeSet', 'product'])
             ->get();
 
         $productVariationsInfo = ProductVariationItem::getVariationsInfo($productVariations->pluck('id')->all());
@@ -244,6 +244,56 @@ class ProductController extends BaseApiController
                         'order' => $attr->order,
                     ];
                 }, $selectedAttrs instanceof Collection ? $selectedAttrs->all() : $selectedAttrs),
+                'variations' => $productVariations->map(function ($variation) use ($product) {
+                    $variationProduct = $variation->product;
+                    if (! $variationProduct) {
+                        return null;
+                    }
+
+                    $price = $variationProduct->price();
+                    $regularPrice = (float) $price->getPrice();
+                    $originalPrice = (float) $price->getPriceOriginal();
+                    $salePrice = ($originalPrice > $regularPrice) ? $regularPrice : null;
+
+                    $attrsMap = [];
+                    $selectedAttributes = [];
+
+                    foreach ($variation->productAttributes as $attr) {
+                        $set = $attr->productAttributeSet;
+                        $setKey = $set ? strtolower($set->slug ?: $set->title) : 'attribute';
+                        $attrsMap[$setKey] = $attr->title;
+
+                        $selectedAttributes[] = [
+                            'id' => $attr->id,
+                            'title' => $attr->title,
+                            'slug' => $attr->slug,
+                            'color' => $attr->color,
+                            'set_id' => $attr->attribute_set_id,
+                            'set_title' => $set?->title,
+                            'set_slug' => $set?->slug,
+                        ];
+                    }
+
+                    return [
+                        'id' => $variation->id,
+                        'product_id' => $variationProduct->id,
+                        'name' => $variationProduct->name ?: $product->name,
+                        'sku' => $variationProduct->sku ?: ($product->sku . '-' . $variation->id),
+                        'price' => $regularPrice,
+                        'price_formatted' => $price->displayAsText(),
+                        'sale_price' => $salePrice,
+                        'sale_price_formatted' => $salePrice ? $price->displayAsText() : null,
+                        'original_price' => $originalPrice,
+                        'original_price_formatted' => $price->displayPriceOriginalAsText(),
+                        'quantity' => (int) ($variationProduct->quantity ?? 0),
+                        'is_out_of_stock' => $variationProduct->isOutOfStock(),
+                        'stock_status_label' => $variationProduct->stock_status_label,
+                        'is_default' => (bool) $variation->is_default,
+                        'image_url' => RvMedia::getImageUrl($variationProduct->image ?: $product->image, null, false, RvMedia::getDefaultImage()),
+                        'attributes' => $attrsMap,
+                        'selected_attributes' => $selectedAttributes,
+                    ];
+                })->filter()->values()->all(),
             ])
             ->toApiResponse();
     }

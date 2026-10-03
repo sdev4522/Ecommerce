@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, ShoppingBag, Truck, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Product } from '../../lib/types';
 import { useCartStore } from '../../store/useCartStore';
+import { useCurrency } from '../providers/CurrencyProvider';
+import { findMatchingVariation, resolveInitialAttributes } from '../../lib/variations';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -24,6 +26,10 @@ interface QuickViewModalProps {
 }
 
 export default function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps) {
+  const { formatPrice } = useCurrency();
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>(() =>
+    resolveInitialAttributes(product)
+  );
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] || 'Standard');
   const [quantity, setQuantity] = useState(1);
@@ -32,18 +38,49 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
   const addItem = useCartStore((state) => state.addItem);
 
+  const activeVariation = useMemo(
+    () => findMatchingVariation(product.variations, selectedAttributes),
+    [product.variations, selectedAttributes]
+  );
+
+  const activePrice = activeVariation?.price ?? product.price;
+  const activeOriginalPrice = activeVariation?.original_price ?? product.original_price;
+  const activeIsOutOfStock = activeVariation ? activeVariation.is_out_of_stock : product.is_out_of_stock;
+
   const currentColor = product.colors?.[selectedColorIndex];
   const images = product.images && product.images.length > 0 ? product.images : [product.image_url];
-  const activeImage = images[selectedImageIndex] || product.image_url;
+  const activeImage =
+    (activeVariation?.image_url && activeVariation.image_url !== product.image_url)
+      ? activeVariation.image_url
+      : images[selectedImageIndex] || product.image_url;
+
+  const handleColorSelect = (idx: number, colorName: string) => {
+    setSelectedColorIndex(idx);
+    setSelectedAttributes((prev) => ({ ...prev, color: colorName }));
+  };
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size);
+    setSelectedAttributes((prev) => ({ ...prev, size }));
+  };
 
   const handleAddToCart = () => {
+    if (activeIsOutOfStock) {
+      toast.error('This variation is currently out of stock.');
+      return;
+    }
+
     setIsAdding(true);
     addItem(
       product,
       selectedSize,
       currentColor?.name,
       currentColor?.hex,
-      quantity
+      quantity,
+      true,
+      activeVariation?.id,
+      activePrice,
+      activeVariation?.sku
     );
     toast.success(`Added ${quantity}x ${product.name} (${selectedSize}) to your bag`);
     setTimeout(() => {
@@ -119,11 +156,16 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                 </h3>
                 <div className="mt-1.5 flex items-center space-x-2.5">
                   <span className="text-xl font-bold text-neutral-950 font-sans">
-                    {product.price_formatted}
+                    {formatPrice(activePrice)}
                   </span>
-                  {product.original_price && product.original_price > product.price && (
+                  {activeOriginalPrice && activeOriginalPrice > activePrice && (
                     <span className="text-xs text-neutral-400 line-through font-sans">
-                      {product.original_price_formatted}
+                      {formatPrice(activeOriginalPrice)}
+                    </span>
+                  )}
+                  {activeOriginalPrice && activeOriginalPrice > activePrice && (
+                    <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 px-1.5 py-0.5 border border-emerald-200">
+                      Save {Math.round(((activeOriginalPrice - activePrice) / activeOriginalPrice) * 100)}%
                     </span>
                   )}
                 </div>
@@ -143,7 +185,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                     {product.colors.map((color, idx) => (
                       <button
                         key={color.name}
-                        onClick={() => setSelectedColorIndex(idx)}
+                        onClick={() => handleColorSelect(idx, color.name)}
                         className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
                           selectedColorIndex === idx
                             ? 'ring-2 ring-neutral-950 ring-offset-2 scale-105 border-neutral-900'
@@ -180,7 +222,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   {(product.sizes || ['Standard']).map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
+                      onClick={() => handleSizeSelect(size)}
                       className={`min-w-[42px] h-10 px-3 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border ${
                         selectedSize === size
                           ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
@@ -213,11 +255,17 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
                 <Button
                   onClick={handleAddToCart}
-                  disabled={isAdding}
-                  className="flex-1 h-11 shadow-md"
+                  disabled={isAdding || activeIsOutOfStock}
+                  className="flex-1 h-11 shadow-md disabled:opacity-50"
                 >
                   <ShoppingBag size={14} />
-                  <span>{isAdding ? 'Adding to Bag...' : 'Add to Bag'}</span>
+                  <span>
+                    {activeIsOutOfStock
+                      ? 'Out of Stock'
+                      : isAdding
+                      ? 'Adding to Bag...'
+                      : 'Add to Bag'}
+                  </span>
                 </Button>
               </div>
 
@@ -238,7 +286,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
             <div className="mt-6 pt-4 border-t border-neutral-100 grid grid-cols-2 gap-3 text-[11px] text-neutral-500">
               <div className="flex items-center space-x-1.5">
                 <Truck size={14} className="text-neutral-700 shrink-0" />
-                <span>Free Shipping over ₹1,999</span>
+                <span>Free Shipping over {formatPrice(1999)}</span>
               </div>
               <div className="flex items-center space-x-1.5">
                 <ShieldCheck size={14} className="text-neutral-700 shrink-0" />

@@ -21,6 +21,8 @@ import {
   Phone,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatPrice } from '../../lib/utils';
+import { useCurrency } from '../../components/providers/CurrencyProvider';
 
 interface TrackingProduct {
   id?: number;
@@ -133,7 +135,9 @@ const DEMO_ORDER: TrackingOrder = {
       product_image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop',
       qty: 1,
       price: 2400,
-      price_formatted: '₹2,400',
+      get price_formatted() {
+        return formatPrice(2400);
+      },
     },
     {
       id: 2,
@@ -141,7 +145,9 @@ const DEMO_ORDER: TrackingOrder = {
       product_image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800&auto=format&fit=crop',
       qty: 1,
       price: 2500,
-      price_formatted: '₹2,500',
+      get price_formatted() {
+        return formatPrice(2500);
+      },
     },
   ],
   shipment: {
@@ -173,6 +179,7 @@ const DEMO_ORDER: TrackingOrder = {
 };
 
 export default function OrderTrackingPage() {
+  const { formatPrice: formatPriceCurrency } = useCurrency();
   const [orderCode, setOrderCode] = useState('');
   const [identifier, setIdentifier] = useState(''); // Email or phone number
   const [isLoading, setIsLoading] = useState(false);
@@ -565,7 +572,7 @@ export default function OrderTrackingPage() {
                     Items in this Package ({trackedOrder.products.length})
                   </h4>
                   <span className="text-xs font-semibold text-neutral-950">
-                    Total: ₹{Number(trackedOrder.amount).toLocaleString('en-IN')}
+                    Total: {formatPriceCurrency(Number(trackedOrder.amount))}
                   </span>
                 </div>
 
@@ -592,12 +599,12 @@ export default function OrderTrackingPage() {
                           {item.product_name}
                         </p>
                         <p className="text-[11px] text-neutral-500 mt-0.5">
-                          Quantity: {item.qty} &times; {item.price_formatted || `₹${Number(item.price).toLocaleString('en-IN')}`}
+                          Quantity: {item.qty} &times; {item.price_formatted || formatPriceCurrency(Number(item.price))}
                         </p>
                       </div>
 
                       <div className="text-xs font-semibold text-neutral-950 shrink-0">
-                        ₹{(Number(item.price) * item.qty).toLocaleString('en-IN')}
+                        {formatPriceCurrency(Number(item.price) * item.qty)}
                       </div>
                     </div>
                   ))}

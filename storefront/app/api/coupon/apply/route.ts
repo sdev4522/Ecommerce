@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { formatPrice } from '@/lib/utils';
 
 const BOTBLE_URL = process.env.NEXT_PUBLIC_BOTBLE_URL || 'http://localhost:8000';
 const BOTBLE_API_KEY = process.env.BOTBLE_API_KEY || '';
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: `Minimum order of ₹${Number(foundCoupon.min_order_price).toLocaleString()} required to use coupon "${code}".`,
+          message: `Minimum order of ${formatPrice(Number(foundCoupon.min_order_price))} required to use coupon "${code}".`,
         },
         { status: 400 }
       );
@@ -122,7 +123,7 @@ export async function POST(request: Request) {
       success: true,
       message: isFreeShipping
         ? `Free Shipping coupon "${code}" applied successfully!`
-        : `Coupon "${code}" applied! You saved ₹${discountAmount.toLocaleString('en-IN')}.`,
+        : `Coupon "${code}" applied! You saved ${formatPrice(discountAmount)}.`,
       coupon: {
         code: foundCoupon.code,
         title: foundCoupon.title || foundCoupon.code,

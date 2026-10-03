@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { ShieldCheck, Truck, RotateCcw, CreditCard, Sparkles } from 'lucide-react';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 export default function MarqueeTicker() {
+  const { formatPrice } = useCurrency();
   const items = [
-    { text: 'FREE EXPRESS SHIPPING ON ORDERS OVER ₹1,999', icon: Truck },
+    { text: `FREE EXPRESS SHIPPING ON ORDERS OVER ${formatPrice(1999)}`, icon: Truck },
     { text: '100% AUTHENTIC GUARANTEED PRODUCTS', icon: ShieldCheck },
     { text: 'EASY 7-DAY DOORSTEP RETURNS & REPLACEMENTS', icon: RotateCcw },
     { text: 'CASH ON DELIVERY & INSTANT UPI PAYMENT AVAILABLE', icon: CreditCard },

@@ -20,6 +20,7 @@ import {
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 interface FAQItem {
   id: string;
@@ -29,14 +30,20 @@ interface FAQItem {
   answer: string;
 }
 
-const FAQ_DATA: FAQItem[] = [
+interface FAQItemDraft {
+  id: string;
+  category: 'shipping' | 'returns' | 'payment' | 'orders';
+  badge?: string;
+  question: string;
+  answer?: string;
+}
+
+const FAQ_DATA_BASE: FAQItemDraft[] = [
   {
     id: 'faq-1',
     category: 'shipping',
     badge: 'Express Shipping',
     question: 'Do you offer Free Delivery and what are the thresholds?',
-    answer:
-      'Yes! We offer 100% complimentary Express Shipping across India on all orders over ₹1,999. For orders below ₹1,999, a nominal standard shipping fee of ₹99 is applied at checkout. Orders are dispatched within 24 hours from our warehouse.',
   },
   {
     id: 'faq-2',
@@ -89,11 +96,20 @@ const FAQ_DATA: FAQItem[] = [
 ];
 
 export default function FAQSection() {
+  const { formatPrice } = useCurrency();
   const [activeCategory, setActiveCategory] = useState<
     'all' | 'shipping' | 'returns' | 'payment' | 'orders'
   >('all');
 
-  const filteredFaqs = FAQ_DATA.filter((item) => {
+  const faqData: FAQItem[] = React.useMemo(() => [
+    {
+      ...FAQ_DATA_BASE[0],
+      answer: `Yes! We offer 100% complimentary Express Shipping on all orders over ${formatPrice(1999)}. For orders below ${formatPrice(1999)}, a nominal standard shipping fee of ${formatPrice(99)} is applied at checkout. Orders are dispatched within 24 hours from our warehouse.`,
+    },
+    ...FAQ_DATA_BASE.slice(1) as FAQItem[],
+  ], [formatPrice]);
+
+  const filteredFaqs = faqData.filter((item) => {
     if (activeCategory === 'all') return true;
     return item.category === activeCategory;
   });

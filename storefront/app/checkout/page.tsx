@@ -28,7 +28,7 @@ import {
   User,
 } from 'lucide-react';
 import { useCartStore } from '../../store/useCartStore';
-import { formatPrice } from '../../lib/utils';
+import { useCurrency } from '../../components/providers/CurrencyProvider';
 import { AppliedCoupon } from '../../lib/commerce';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
@@ -46,6 +46,7 @@ interface BackendCheckoutTotals {
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, clearCart } = useCartStore();
+  const { currency, formatPrice } = useCurrency();
 
   // Form states
   const [formData, setFormData] = useState({
@@ -129,7 +130,7 @@ export default function CheckoutPage() {
             shippingMethodName: data.data.shippingMethodName || 'Standard Delivery',
             isFreeShipping: Boolean(data.data.isFreeShipping),
             grandTotal: Number(data.data.grandTotal) || 0,
-            currency: data.data.currency || 'INR',
+            currency: data.data.currency || currency.code || 'INR',
           });
           setShippingError(null);
         } else {
@@ -322,6 +323,7 @@ export default function CheckoutPage() {
           },
           items: items.map((item) => ({
             product_id: item.product_id,
+            variation_id: item.variation_id,
             product_name: item.name,
             qty: item.qty,
             price: item.price,
@@ -386,6 +388,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items: items.map((item) => ({
             product_id: item.product_id,
+            variation_id: item.variation_id,
             name: item.name,
             price: item.price,
             qty: item.qty,
@@ -423,7 +426,7 @@ export default function CheckoutPage() {
       const options = {
         key: prepareData.key_id,
         amount: prepareData.amount,
-        currency: prepareData.currency || 'INR',
+        currency: prepareData.currency || currency.code || 'INR',
         name: 'LUNE',
         description: `Order Checkout (${items.length} items)`,
         order_id: prepareData.razorpay_order_id,
@@ -465,6 +468,7 @@ export default function CheckoutPage() {
                 },
                 items: items.map((item) => ({
                   product_id: item.product_id,
+                  variation_id: item.variation_id,
                   product_name: item.name,
                   qty: item.qty,
                   price: item.price,
@@ -998,7 +1002,7 @@ export default function CheckoutPage() {
                                 ? ` (${c.value}% off)`
                                 : c.type_option === 'shipping'
                                   ? ' (Free Shipping)'
-                                  : ` (₹${c.value} off)`}
+                                  : ` (${formatPrice(c.value)} off)`}
                             </button>
                           ))}
                         </div>

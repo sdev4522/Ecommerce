@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import ProductCard from '../product/ProductCard';
 import { Product, ProductCategory } from '../../lib/types';
-import { formatPrice } from '../../lib/utils';
+import { useCurrency } from '../providers/CurrencyProvider';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -57,13 +57,7 @@ interface ShopArchiveViewProps {
 
 type ViewMode = 'grid-4' | 'grid-3' | 'grid-2' | 'list';
 
-const PRICE_PRESETS = [
-  { label: 'All Prices', min: undefined, max: undefined },
-  { label: 'Under ₹500', min: 0, max: 500 },
-  { label: '₹500 – ₹1,000', min: 500, max: 1000 },
-  { label: '₹1,000 – ₹2,000', min: 1000, max: 2000 },
-  { label: 'Above ₹2,000', min: 2000, max: undefined },
-];
+
 
 const SORT_OPTIONS = [
   { value: 'featured', label: 'Curated & Featured' },
@@ -90,10 +84,19 @@ export default function ShopArchiveView({
   currentQuery,
   inStockOnly = false,
 }: ShopArchiveViewProps) {
+  const { currency, formatPrice } = useCurrency();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+
+  const pricePresets = React.useMemo(() => [
+    { label: 'All Prices', min: undefined, max: undefined },
+    { label: `Under ${formatPrice(500)}`, min: 0, max: 500 },
+    { label: `${formatPrice(500)} – ${formatPrice(1000)}`, min: 500, max: 1000 },
+    { label: `${formatPrice(1000)} – ${formatPrice(2000)}`, min: 1000, max: 2000 },
+    { label: `Above ${formatPrice(2000)}`, min: 2000, max: undefined },
+  ], [formatPrice]);
 
   // Layout & UI controls
   const [viewMode, setViewMode] = useState<ViewMode>('grid-4');
@@ -406,7 +409,7 @@ export default function ShopArchiveView({
           {(currentMinPrice !== undefined || currentMaxPrice !== undefined) && (
             <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 text-xs">
               <span>
-                Price: {currentMinPrice !== undefined ? formatPrice(currentMinPrice) : '₹0'} &ndash;{' '}
+                Price: {currentMinPrice !== undefined ? formatPrice(currentMinPrice) : formatPrice(0)} &ndash;{' '}
                 {currentMaxPrice !== undefined ? formatPrice(currentMaxPrice) : 'Any'}
               </span>
               <button
@@ -519,7 +522,7 @@ export default function ShopArchiveView({
                 Price Presets
               </span>
               <div className="space-y-1">
-                {PRICE_PRESETS.map((p, idx) => {
+                {pricePresets.map((p, idx) => {
                   const isSelected = currentMinPrice === p.min && currentMaxPrice === p.max;
                   return (
                     <button
@@ -550,7 +553,7 @@ export default function ShopArchiveView({
               <form onSubmit={handleCustomPriceSubmit} className="pt-2 space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] text-neutral-400 block mb-0.5 font-mono">MIN ₹</span>
+                    <span className="text-[10px] text-neutral-400 block mb-0.5 font-mono">MIN ({currency.symbol})</span>
                     <Input
                       type="number"
                       placeholder="0"
@@ -560,7 +563,7 @@ export default function ShopArchiveView({
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] text-neutral-400 block mb-0.5 font-mono">MAX ₹</span>
+                    <span className="text-[10px] text-neutral-400 block mb-0.5 font-mono">MAX ({currency.symbol})</span>
                     <Input
                       type="number"
                       placeholder="5000"
@@ -861,7 +864,7 @@ export default function ShopArchiveView({
                 Price Range
               </span>
               <div className="grid grid-cols-2 gap-2">
-                {PRICE_PRESETS.map((p, idx) => {
+                {pricePresets.map((p, idx) => {
                   const isSelected = currentMinPrice === p.min && currentMaxPrice === p.max;
                   return (
                     <button
@@ -893,14 +896,14 @@ export default function ShopArchiveView({
                 <div className="grid grid-cols-2 gap-2">
                   <Input
                     type="number"
-                    placeholder="Min ₹"
+                    placeholder={`Min (${currency.symbol})`}
                     value={minPriceInput}
                     onChange={(e) => setMinPriceInput(e.target.value)}
                     className="h-9 text-xs font-mono"
                   />
                   <Input
                     type="number"
-                    placeholder="Max ₹"
+                    placeholder={`Max (${currency.symbol})`}
                     value={maxPriceInput}
                     onChange={(e) => setMaxPriceInput(e.target.value)}
                     className="h-9 text-xs font-mono"

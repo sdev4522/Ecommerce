@@ -17,6 +17,7 @@ import {
     HeartHandshake,
     Scissors,
 } from "lucide-react";
+import { useCurrency } from "@/components/providers/CurrencyProvider";
 
 interface BotblePage {
     id: number;
@@ -26,6 +27,7 @@ interface BotblePage {
 }
 
 export default function AboutUsPage() {
+    const { formatPrice } = useCurrency();
     const [remotePage, setRemotePage] = useState<BotblePage | null>(null);
 
     useEffect(() => {
@@ -364,7 +366,7 @@ export default function AboutUsPage() {
                             Ready to Discover Your Next Favorite Piece?
                         </h3>
                         <p className="text-xs text-neutral-400 font-light max-w-md">
-                            Explore our latest collections with free express shipping on orders over ₹1,999 and easy 7-day doorstep returns.
+                            Explore our latest collections with free express shipping on orders over {formatPrice(1999)} and easy 7-day doorstep returns.
                         </p>
                     </div>
 

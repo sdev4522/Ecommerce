@@ -22,7 +22,10 @@ interface CartStore {
     color?: string,
     colorHex?: string,
     qty?: number,
-    openDrawer?: boolean
+    openDrawer?: boolean,
+    variationId?: number,
+    variationPrice?: number,
+    variationSku?: string
   ) => void;
   removeItem: (id: string) => void;
   updateQty: (id: string, qty: number) => void;
@@ -50,15 +53,28 @@ export const useCartStore = create<CartStore>()(
       openQuickBuy: () => set({ isQuickBuyOpen: true, isOpen: false }),
       closeQuickBuy: () => set({ isQuickBuyOpen: false }),
 
-      addItem: (product, size = 'M', color, colorHex, qty = 1, openDrawer = false) => {
+      addItem: (
+        product,
+        size = 'M',
+        color,
+        colorHex,
+        qty = 1,
+        openDrawer = false,
+        variationId,
+        variationPrice,
+        variationSku
+      ) => {
         const items = get().items;
         const colorName = color || (product.colors && product.colors[0]?.name) || 'Standard';
         const colorValue = colorHex || (product.colors && product.colors[0]?.hex) || '#111111';
         
-        // Composite unique key for product + size + color
-        const compositeId = `${product.id}-${size}-${colorName}`;
+        // Composite unique key for product + variation (or size + color)
+        const compositeId = variationId
+          ? `${product.id}-var-${variationId}`
+          : `${product.id}-${size}-${colorName}`;
 
         const existingIndex = items.findIndex((i) => i.id === compositeId);
+        const effectivePrice = typeof variationPrice === 'number' ? variationPrice : product.price;
 
         if (existingIndex > -1) {
           const updatedItems = [...items];
@@ -72,10 +88,12 @@ export const useCartStore = create<CartStore>()(
           const newItem: CartItem = {
             id: compositeId,
             product_id: product.id,
+            variation_id: variationId,
             slug: product.slug,
             name: product.name,
-            price: product.price,
-            formatted_price: product.price_formatted || formatPrice(product.price),
+            sku: variationSku || product.sku,
+            price: effectivePrice,
+            formatted_price: formatPrice(effectivePrice),
             image: product.image_url,
             qty: qty,
             size: size,

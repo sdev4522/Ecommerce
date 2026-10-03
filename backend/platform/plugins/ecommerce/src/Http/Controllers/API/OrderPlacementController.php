@@ -13,6 +13,7 @@ use Botble\Ecommerce\Models\OrderAddress;
 use Botble\Ecommerce\Models\OrderHistory;
 use Botble\Ecommerce\Models\OrderProduct;
 use Botble\Ecommerce\Models\Product;
+use Botble\Ecommerce\Models\ProductVariation;
 use Botble\Ecommerce\Models\Shipment;
 use Botble\Ecommerce\Services\HandleShippingFeeService;
 use Botble\Payment\Enums\PaymentStatusEnum;
@@ -307,6 +308,7 @@ class OrderPlacementController extends BaseApiController
 
         foreach ($itemsData as $item) {
             $productId = Arr::get($item, 'product_id');
+            $variationId = Arr::get($item, 'variation_id');
             $qty = max(1, (int) Arr::get($item, 'qty', 1));
             $product = Product::query()->find($productId);
 
@@ -314,24 +316,37 @@ class OrderPlacementController extends BaseApiController
                 throw new \Exception("Product #{$productId} was not found.");
             }
 
+            $variationProduct = null;
+            if ($variationId) {
+                $variation = ProductVariation::query()->with('product')->find($variationId);
+                if ($variation && $variation->product) {
+                    if ($variation->configurable_product_id == $productId || $variation->product_id == $productId) {
+                        $variationProduct = $variation->product;
+                    }
+                }
+            }
+
+            $targetProduct = $variationProduct ?: $product;
+
             // Stock validation
-            if ($product->with_storehouse_management && $product->quantity < $qty) {
-                throw new \Exception("Product '{$product->name}' is out of stock or does not have sufficient quantity (Available: {$product->quantity}, Requested: {$qty}).");
+            if ($targetProduct->with_storehouse_management && $targetProduct->quantity < $qty) {
+                throw new \Exception("Product '{$targetProduct->name}' is out of stock or does not have sufficient quantity (Available: {$targetProduct->quantity}, Requested: {$qty}).");
             }
 
             // Authoritative price from database
-            $authoritativePrice = (float) ($product->front_sale_price ?? ($product->sale_price !== null && $product->sale_price > 0 ? $product->sale_price : $product->price));
-            $productName = $product->name;
-            $productImage = Arr::get($item, 'image', Arr::get($item, 'product_image', $product->image ?: ''));
+            $authoritativePrice = (float) ($targetProduct->front_sale_price ?? ($targetProduct->sale_price !== null && $targetProduct->sale_price > 0 ? $targetProduct->sale_price : $targetProduct->price));
+            $productName = $targetProduct->name ?: $product->name;
+            $productImage = Arr::get($item, 'image', Arr::get($item, 'product_image', $targetProduct->image ?: $product->image ?: ''));
             $options = Arr::get($item, 'options', []);
 
             $lineTotal = round($authoritativePrice * $qty, 2);
             $subTotal += $lineTotal;
-            $totalWeight += ((float) ($product->weight ?: 0)) * $qty;
+            $totalWeight += ((float) ($targetProduct->weight ?: $product->weight ?: 0)) * $qty;
 
             $resolvedProducts[] = [
                 'product_id' => $productId,
-                'product' => $product,
+                'variation_id' => $variationId,
+                'product' => $targetProduct,
                 'product_name' => $productName,
                 'product_image' => $productImage,
                 'qty' => $qty,
@@ -480,7 +495,7 @@ class OrderPlacementController extends BaseApiController
             ->setData([
                 'free_shipping_threshold' => $freeRule && $freeRule->from ? (float) $freeRule->from : 2000.0,
                 'standard_shipping_fee' => $standardRule ? (float) $standardRule->price : 10.0,
-                'currency' => 'INR',
+                'currency' => strtoupper(get_application_currency()->title ?? 'INR'),
                 'rules' => $rules,
             ])
             ->toApiResponse();

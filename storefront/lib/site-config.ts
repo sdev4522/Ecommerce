@@ -40,6 +40,9 @@ export interface WebsiteTracking {
   is_gtm_enabled?: boolean;
 }
 
+import type { CurrencyConfig } from './types';
+import { DEFAULT_CURRENCY_CONFIG, setActiveCurrencyConfig } from './utils';
+
 export interface SiteSettings {
   site_title: string;
   show_site_name?: boolean;
@@ -58,6 +61,7 @@ export interface SiteSettings {
   contact_info_boxes: ContactInfoBox[];
   seo: SEOSettings;
   tracking: WebsiteTracking;
+  currency: CurrencyConfig;
 }
 
 export interface MenuItem {
@@ -130,7 +134,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   header_messages: [
     {
       icon: 'fa fa-truck',
-      message: 'Free shipping on orders over ₹1,999 across India',
+      message: 'Complimentary express shipping on qualifying orders',
       link: '/shop',
       link_text: 'Shop now',
     },
@@ -170,6 +174,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
     gtm_debug_mode: false,
     is_gtm_enabled: false,
   },
+  currency: DEFAULT_CURRENCY_CONFIG,
 };
 
 /**
@@ -207,9 +212,17 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     if (res.ok) {
       const json = await res.json();
       if (json.data && !json.error) {
+        const resolvedCurrency: CurrencyConfig = json.data.currency ? {
+          ...DEFAULT_CURRENCY_CONFIG,
+          ...json.data.currency,
+        } : DEFAULT_CURRENCY_CONFIG;
+
+        setActiveCurrencyConfig(resolvedCurrency);
+
         return {
           ...DEFAULT_SITE_SETTINGS,
           ...json.data,
+          currency: resolvedCurrency,
           logo: json.data.logo ? getMediaUrl(json.data.logo) : null,
           logo_light: json.data.logo_light ? getMediaUrl(json.data.logo_light) : null,
           favicon: json.data.favicon ? getMediaUrl(json.data.favicon) : null,
@@ -229,6 +242,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     console.warn('[getSiteSettings] Failed to fetch live settings from Botble, using fallback:', err);
   }
 
+  setActiveCurrencyConfig(DEFAULT_CURRENCY_CONFIG);
   return DEFAULT_SITE_SETTINGS;
 }
 

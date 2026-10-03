@@ -47,19 +47,16 @@ export default function VIPNewsletter() {
       {/* Subtle radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-        <div className="space-y-3">
-          <Badge variant="outline" className="border-neutral-300 bg-neutral-100 text-neutral-800 gap-1.5 py-1 px-3">
-            <Sparkles size={12} />
-            <span>Welcome Offer</span>
-          </Badge>
+      <div className="bg-black text-white p-[50px] rounded-xl relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+        <div className="space-y-4">
+
 
           <h2 className="text-3xl sm:text-5xl font-display font-bold tracking-tight">
             Get 10% Off Your First Order
           </h2>
 
-          <p className="text-xs sm:text-sm text-neutral-600 max-w-xl mx-auto leading-relaxed font-normal">
-            Join the LUNE community and enjoy <span className="text-black font-semibold">10% off your first purchase</span> with coupon code{' '}
+          <p className="text-xs sm:text-sm text-white max-w-xl mx-auto leading-relaxed font-normal">
+            Join the LUNE community and enjoy <span className="text-white font-semibold">10% off your first purchase</span> with coupon code{' '}
             <strong className="text-black font-mono px-2 py-0.5 border border-neutral-300 bg-neutral-50">WELCOME10</strong>, plus early access to new arrivals and exclusive edits.
           </p>
         </div>
@@ -80,7 +77,7 @@ export default function VIPNewsletter() {
               </p>
             </Card>
           ) : (
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2.5">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2.5 items-center">
               <div className="relative flex-1">
                 <Mail
                   size={16}
@@ -101,7 +98,7 @@ export default function VIPNewsletter() {
                 variant="default"
                 size="default"
                 disabled={isSubmitting}
-                className="shrink-0"
+                className="shrink-0 border border-white rounded-[0px] h-10"
               >
                 <span>{isSubmitting ? 'Joining...' : 'Unlock 10% Off'}</span>
                 <ArrowRight size={13} />

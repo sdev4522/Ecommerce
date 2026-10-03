@@ -69,19 +69,16 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
 
     const [current, setCurrent] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-    const isFirstRender = useRef(true);
 
     // Touch Swipe tracking
     const touchStartX = useRef<number | null>(null);
     const touchEndX = useRef<number | null>(null);
 
     const nextSlide = useCallback(() => {
-        isFirstRender.current = false;
         setCurrent((prev) => (prev + 1) % activeSlides.length);
     }, [activeSlides.length]);
 
     const prevSlide = useCallback(() => {
-        isFirstRender.current = false;
         setCurrent(
             (prev) => (prev - 1 + activeSlides.length) % activeSlides.length,
         );
@@ -166,7 +163,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 <AnimatePresence mode="wait" initial={false}>
                     <motion.div
                         key={slide.id}
-                        initial={isFirstRender.current ? false : { opacity: 0, scale: 1.05 }}
+                        initial={{ opacity: 0, scale: 1.05 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -206,7 +203,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                                 key={slide.id}
-                                initial={isFirstRender.current ? false : "hidden"}
+                                initial="hidden"
                                 animate="visible"
                                 exit="exit"
                                 variants={{

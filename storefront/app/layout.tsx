@@ -87,6 +87,8 @@ export async function generateMetadata(): Promise<Metadata> {
 import SmoothScrollProvider from "../components/providers/SmoothScrollProvider";
 import PageTransition from "../components/layout/PageTransition";
 
+import { CurrencyProvider } from "../components/providers/CurrencyProvider";
+
 export default async function RootLayout({
     children,
 }: {
@@ -140,27 +142,29 @@ export default async function RootLayout({
                 />
             </head>
             <body className="min-h-screen flex flex-col bg-[var(--theme-bg)] text-[var(--theme-text-primary)] font-sans antialiased selection:bg-[#b87c62] selection:text-white pb-14 lg:pb-0">
-                <SmoothScrollProvider>
-                    <TrackingScripts tracking={siteSettings.tracking} />
-                    <Toaster
-                        position="bottom-right"
-                        richColors
-                        closeButton
-                        theme="light"
-                    />
-                    <AnnouncementBar
-                        messages={siteSettings.header_messages}
-                        phone={siteSettings.phone}
-                        email={siteSettings.contact_email}
-                    />
-                    <Navbar siteSettings={siteSettings} menuItems={mainMenu} />
-                    <main className="flex-1">
-                        <PageTransition>{children}</PageTransition>
-                    </main>
-                    <Footer siteSettings={siteSettings} footerMenu={footerMenu} />
-                    <MobileBottomNav />
-                    <ClientOverlays />
-                </SmoothScrollProvider>
+                <CurrencyProvider initialConfig={siteSettings.currency}>
+                    <SmoothScrollProvider>
+                        <TrackingScripts tracking={siteSettings.tracking} />
+                        <Toaster
+                            position="bottom-right"
+                            richColors
+                            closeButton
+                            theme="light"
+                        />
+                        <AnnouncementBar
+                            messages={siteSettings.header_messages}
+                            phone={siteSettings.phone}
+                            email={siteSettings.contact_email}
+                        />
+                        <Navbar siteSettings={siteSettings} menuItems={mainMenu} />
+                        <main className="flex-1">
+                            <PageTransition>{children}</PageTransition>
+                        </main>
+                        <Footer siteSettings={siteSettings} footerMenu={footerMenu} />
+                        <MobileBottomNav />
+                        <ClientOverlays />
+                    </SmoothScrollProvider>
+                </CurrencyProvider>
             </body>
         </html>
     );

@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Truck, CheckCircle2, RotateCcw, MapPin, Banknote, ShieldCheck } from 'lucide-react';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 export default function DeliveryPincodeChecker() {
+  const { formatPrice } = useCurrency();
   const [pincode, setPincode] = useState('');
   const [checkedPincode, setCheckedPincode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export default function DeliveryPincodeChecker() {
 
       <div className="flex items-center gap-3 pt-2 text-[10px] text-neutral-400 border-t border-neutral-200/50">
         <span className="flex items-center gap-1">
-          <Truck size={12} className="text-neutral-600" /> Free Shipping over ₹1,999
+          <Truck size={12} className="text-neutral-600" /> Free Shipping over {formatPrice(1999)}
         </span>
         <span>&bull;</span>
         <span className="flex items-center gap-1">

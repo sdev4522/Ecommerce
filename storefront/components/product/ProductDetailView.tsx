@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Heart,
@@ -16,13 +16,14 @@ import {
   CreditCard,
   Zap,
   MessageCircle,
-  ShieldCheck,
   Sparkles,
   Banknote,
 } from 'lucide-react';
 import { Product } from '../../lib/types';
 import { useCartStore } from '../../store/useCartStore';
 import { useWishlistStore } from '../../store/useWishlistStore';
+import { useCurrency } from '../providers/CurrencyProvider';
+import { findMatchingVariation, resolveInitialAttributes, checkAttributeAvailability } from '../../lib/variations';
 import SizeGuideModal from './SizeGuideModal';
 import ProductCard from './ProductCard';
 import ProductReviews from './ProductReviews';
@@ -40,10 +41,30 @@ interface ProductDetailViewProps {
 }
 
 export default function ProductDetailView({ product, relatedProducts }: ProductDetailViewProps) {
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<string>(
-    product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'One Size'
+  const { currency, formatPrice } = useCurrency();
+
+  // Page-scoped variation attributes state - Zero API requests on attribute change
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>(() =>
+    resolveInitialAttributes(product)
   );
+
+  const [selectedColorIndex, setSelectedColorIndex] = useState(() => {
+    const init = resolveInitialAttributes(product);
+    if (product.colors && product.colors.length > 0 && init.color) {
+      const idx = product.colors.findIndex(
+        (c) => c.name.toLowerCase() === init.color.toLowerCase()
+      );
+      return idx !== -1 ? idx : 0;
+    }
+    return 0;
+  });
+
+  const [selectedSize, setSelectedSize] = useState<string>(() => {
+    const init = resolveInitialAttributes(product);
+    if (init.size) return init.size;
+    return product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'One Size';
+  });
+
   const [quantity, setQuantity] = useState(1);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [isAddedAnimation, setIsAddedAnimation] = useState(false);
@@ -54,23 +75,73 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
   const {
     addItem,
     openCart,
-    closeCart,
     isQuickBuyOpen,
-    openQuickBuy,
     closeQuickBuy,
   } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
 
   const isFavorite = isInWishlist(product.id);
 
+  // Instant local variation matching (O(1) composite key lookup via in-memory Map)
+  const activeVariation = useMemo(
+    () => findMatchingVariation(product.variations, selectedAttributes),
+    [product.variations, selectedAttributes]
+  );
+
+  const activePrice = activeVariation?.price ?? product.price;
+  const activeOriginalPrice = activeVariation?.original_price ?? product.original_price;
+  const activeStock = activeVariation ? activeVariation.quantity : product.quantity;
+  const activeIsOutOfStock = activeVariation ? activeVariation.is_out_of_stock : product.is_out_of_stock;
+  const activeSku = activeVariation?.sku || product.sku;
+
   const currentColor = product.colors && product.colors[selectedColorIndex];
   const images = product.images && product.images.length > 0 ? product.images : [product.image_url];
-  const activeImage = currentColor?.image || images[0] || product.image_url;
+  const activeImage =
+    (activeVariation?.image_url && activeVariation.image_url !== product.image_url)
+      ? activeVariation.image_url
+      : currentColor?.image || images[0] || product.image_url;
+
+  const handleColorChange = (idx: number, colorName: string) => {
+    setSelectedColorIndex(idx);
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      color: colorName,
+    }));
+  };
+
+  const handleSizeChange = (size: string) => {
+    setSelectedSize(size);
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      size,
+    }));
+  };
+
+  const handleAttributeChange = (attrKey: string, attrVal: string) => {
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [attrKey]: attrVal,
+    }));
+  };
+
+  // Additional dynamic attribute sets beyond color and size (e.g. Material, Style, Finish)
+  const otherAttributeSets = useMemo(() => {
+    if (!product.attribute_sets || !Array.isArray(product.attribute_sets)) return [];
+    return product.attribute_sets.filter((set) => {
+      const slug = (set.slug || '').toLowerCase();
+      const title = (set.title || '').toLowerCase();
+      const isColor = slug === 'color' || title === 'color';
+      const isSize = slug === 'size' || title === 'size';
+      if (isColor && product.colors && product.colors.length > 0) return false;
+      if (isSize && product.sizes && product.sizes.length > 0) return false;
+      return true;
+    });
+  }, [product.attribute_sets, product.colors, product.sizes]);
 
   const handleAddToCart = () => {
     // 1. Stock & inventory validation
-    if (product.is_out_of_stock || (typeof product.quantity === 'number' && product.quantity <= 0)) {
-      toast.error('This piece is currently out of stock.');
+    if (activeIsOutOfStock || (typeof activeStock === 'number' && activeStock <= 0)) {
+      toast.error('This variation is currently out of stock.');
       return;
     }
 
@@ -81,9 +152,19 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
     }
 
     // 3. Mutually exclusive state transition:
-    // Ensure Quick Buy modal is closed, add item to cart, and open Cart Drawer
+    // Ensure Quick Buy modal is closed, add item to cart with authoritative variation ID, and open Cart Drawer
     closeQuickBuy();
-    addItem(product, selectedSize, currentColor?.name, currentColor?.hex, quantity, true);
+    addItem(
+      product,
+      selectedSize,
+      currentColor?.name,
+      currentColor?.hex,
+      quantity,
+      true,
+      activeVariation?.id,
+      activePrice,
+      activeSku
+    );
 
     setIsAddedAnimation(true);
     setTimeout(() => setIsAddedAnimation(false), 1400);
@@ -118,8 +199,8 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
     }
 
     // 3. Stock validation
-    if (product.is_out_of_stock || (typeof product.quantity === 'number' && product.quantity <= 0)) {
-      toast.error('This piece is currently out of stock.');
+    if (activeIsOutOfStock || (typeof activeStock === 'number' && activeStock <= 0)) {
+      toast.error('This variation is currently out of stock.');
       return;
     }
 
@@ -141,8 +222,18 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
       // Ensure Quick Buy popup is NOT triggered
       closeQuickBuy();
 
-      // Add item to cart and trigger Cart Drawer
-      addItem(product, selectedSize, currentColor?.name, currentColor?.hex, quantity, true);
+      // Add item to cart with authoritative variation details and trigger Cart Drawer
+      addItem(
+        product,
+        selectedSize,
+        currentColor?.name,
+        currentColor?.hex,
+        quantity,
+        true,
+        activeVariation?.id,
+        activePrice,
+        activeSku
+      );
       openCart();
 
       setIsAddedAnimation(true);
@@ -190,46 +281,12 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
 
   const getWhatsAppLink = () => {
     const text = encodeURIComponent(
-      `Hi LUNE, I would like more details about "${product.name}" (Size: ${selectedSize}, SKU: ${product.sku}).`
+      `Hi LUNE, I would like more details about "${product.name}" (Size: ${selectedSize}, SKU: ${activeSku}).`
     );
     return `https://wa.me/919876543210?text=${text}`;
   };
 
   // Structured Data (JSON-LD) for SEO and Rich Google Search Cards
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: images,
-    description: (product.description || product.name).replace(/<[^>]*>/g, '').trim(),
-    sku: product.sku,
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'INR',
-      price: product.price,
-      availability: product.is_out_of_stock
-        ? 'https://schema.org/OutOfStock'
-        : 'https://schema.org/InStock',
-    },
-    ...(product.brand
-      ? {
-        brand: {
-          '@type': 'Brand',
-          name: product.brand.name,
-        },
-      }
-      : {}),
-    ...(product.reviews_count > 0
-      ? {
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: product.reviews_avg,
-          reviewCount: product.reviews_count,
-        },
-      }
-      : {}),
-  };
-
   const hasSpecifications = product.specifications && product.specifications.length > 0;
   const hasMaterials = Boolean(product.materials || product.fabric);
   const hasSubstantialContent =
@@ -239,11 +296,6 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
 
   return (
     <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 pt-3 sm:pt-5 pb-20 sm:pb-16 font-sans">
-      {/* Search Engine Structured Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
 
       {/* ------------------------------------------------------------- */}
       {/* BREADCRUMB & UTILITY NAVIGATION                              */}
@@ -315,7 +367,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             {/* Category / Brand Eyebrow */}
             <div className="flex items-center justify-between text-xs">
               <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-medium font-display">
-                {product.brand?.name || product.category?.name || 'LUNE'} &bull; SKU: {product.sku}
+                {product.brand?.name || product.category?.name || 'LUNE'} &bull; SKU: {activeSku}
               </span>
 
               {/* Review Appraisal Anchor */}
@@ -336,19 +388,19 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
               </button>
             </div>
 
-            {/* Price & Discount */}
+            {/* Price & Discount - Instantly synchronized with selected variation */}
             <div className="pt-1 flex items-baseline space-x-3">
               <span className="text-2xl sm:text-3xl font-display font-semibold text-neutral-950">
-                {product.price_formatted}
+                {formatPrice(activePrice)}
               </span>
-              {product.original_price && product.original_price > product.price && (
+              {activeOriginalPrice && activeOriginalPrice > activePrice && (
                 <span className="text-sm text-neutral-400 line-through">
-                  {product.original_price_formatted}
+                  {formatPrice(activeOriginalPrice)}
                 </span>
               )}
-              {product.original_price && product.original_price > product.price && (
+              {activeOriginalPrice && activeOriginalPrice > activePrice && (
                 <span className="text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                  Save {Math.round(((product.original_price - product.price) / product.original_price) * 100)}%
+                  Save {Math.round(((activeOriginalPrice - activePrice) / activeOriginalPrice) * 100)}%
                 </span>
               )}
             </div>
@@ -357,7 +409,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             <div className="text-[11px] text-neutral-500 flex items-center gap-1.5 pt-0.5 font-light">
               <CreditCard size={13} className="text-neutral-400 shrink-0" />
               <span>
-                Or 3 interest-free payments of <strong>₹{Math.round(product.price / 3).toLocaleString('en-IN')}</strong> with Cards & UPI
+                Or 3 interest-free payments of <strong>{formatPrice(Math.round(activePrice / 3))}</strong> with Cards & UPI
               </span>
             </div>
           </div>
@@ -385,7 +437,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                   <button
                     key={c.name}
                     type="button"
-                    onClick={() => setSelectedColorIndex(idx)}
+                    onClick={() => handleColorChange(idx, c.name)}
                     className={`w-7 h-7 rounded-full border transition-all duration-150 active:scale-90 cursor-pointer ${selectedColorIndex === idx
                       ? 'ring-2 ring-neutral-950 ring-offset-2 scale-105 border-neutral-950'
                       : 'border-neutral-300 opacity-80 hover:opacity-100 hover:scale-105'
@@ -417,19 +469,36 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
               </div>
 
               <div className="grid grid-cols-5 gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 text-xs font-semibold uppercase tracking-wider transition-all duration-150 active:scale-95 border cursor-pointer font-display ${selectedSize === size
-                      ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
-                      : 'bg-white text-neutral-800 border-neutral-200 hover:border-black'
+                {product.sizes.map((size) => {
+                  const isSelected = selectedSize === size;
+                  const availability = checkAttributeAvailability(
+                    product.variations,
+                    selectedAttributes,
+                    'size',
+                    size
+                  );
+                  const isOOS = availability.exists && !availability.inStock;
+
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => handleSizeChange(size)}
+                      aria-label={`Size ${size}${isOOS ? ' (Out of stock)' : ''}`}
+                      className={`relative py-3 text-xs font-semibold uppercase tracking-wider transition-all duration-150 active:scale-95 border cursor-pointer font-display ${
+                        isSelected
+                          ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
+                          : isOOS
+                          ? 'bg-neutral-50 text-neutral-400 border-neutral-200 hover:border-neutral-400'
+                          : 'bg-white text-neutral-800 border-neutral-200 hover:border-black'
                       }`}
-                  >
-                    <span>{size}</span>
-                  </button>
-                ))}
+                    >
+                      <span className={isOOS && !isSelected ? 'line-through text-neutral-400' : ''}>
+                        {size}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               {product.model_info && (
@@ -440,11 +509,67 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             </div>
           )}
 
-          {/* Stock Scarcity Urgency */}
-          {product.quantity > 0 && product.quantity <= 5 && (
+          {/* Additional Dynamic Attribute Sets (e.g. Material, Style, Finish) */}
+          {otherAttributeSets.map((attrSet) => {
+            const setKey = (attrSet.slug || attrSet.title).toLowerCase();
+            const currentValue = selectedAttributes[setKey] || '';
+
+            return (
+              <div key={attrSet.id} className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="uppercase tracking-widest text-neutral-400 font-medium text-[11px] font-display">
+                    {attrSet.title}:
+                  </span>
+                  <span className="font-medium text-neutral-900 font-display">
+                    {currentValue || 'Select an option'}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {attrSet.attributes.map((attr) => {
+                    const isSelected = currentValue.toLowerCase() === attr.title.toLowerCase();
+                    const availability = checkAttributeAvailability(
+                      product.variations,
+                      selectedAttributes,
+                      setKey,
+                      attr.title
+                    );
+                    const isOOS = availability.exists && !availability.inStock;
+
+                    return (
+                      <button
+                        key={attr.id}
+                        type="button"
+                        onClick={() => handleAttributeChange(setKey, attr.title)}
+                        aria-label={`${attrSet.title}: ${attr.title}${isOOS ? ' (Out of stock)' : ''}`}
+                        className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-150 active:scale-95 border cursor-pointer font-display ${
+                          isSelected
+                            ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
+                            : isOOS
+                            ? 'bg-neutral-50 text-neutral-400 border-neutral-200 hover:border-neutral-400'
+                            : 'bg-white text-neutral-800 border-neutral-200 hover:border-black'
+                        }`}
+                      >
+                        <span className={isOOS && !isSelected ? 'line-through text-neutral-400' : ''}>
+                          {attr.title}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Stock Scarcity Urgency & Out of Stock Notice */}
+          {activeStock > 0 && activeStock <= 5 && !activeIsOutOfStock && (
             <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-50/70 border border-amber-200 px-3 py-1.5">
               <Sparkles size={12} className="text-amber-700 shrink-0" />
-              <span>Only {product.quantity} pieces remaining in atelier inventory</span>
+              <span>Only {activeStock} pieces remaining in atelier inventory</span>
+            </div>
+          )}
+          {activeIsOutOfStock && (
+            <div className="flex items-center gap-1.5 text-[11px] text-rose-800 bg-rose-50/70 border border-rose-200 px-3 py-1.5">
+              <span>This variation is currently out of stock</span>
             </div>
           )}
 
@@ -459,18 +584,26 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer"
+                  disabled={quantity <= 1}
+                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Decrease quantity"
                 >
                   <Minus size={13} />
                 </button>
-                <span className="px-3 text-xs font-semibold text-neutral-900 font-mono">
+                <span className="px-3 text-xs font-semibold text-neutral-900 font-mono select-none">
                   {quantity}
                 </span>
                 <button
                   type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer"
+                  onClick={() => {
+                    if (typeof activeStock === 'number' && activeStock > 0 && quantity >= activeStock) {
+                      toast.info(`Maximum available stock is ${activeStock}`);
+                      return;
+                    }
+                    setQuantity(quantity + 1);
+                  }}
+                  disabled={typeof activeStock === 'number' && activeStock > 0 && quantity >= activeStock}
+                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Increase quantity"
                 >
                   <Plus size={13} />
@@ -481,10 +614,10 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={product.is_out_of_stock}
+                disabled={activeIsOutOfStock}
                 className="flex-1 bg-neutral-950 text-white hover:bg-black active:scale-[0.98] text-xs uppercase tracking-[0.2em] font-semibold py-3.5 px-4 transition-all duration-150 flex items-center justify-center space-x-2 cursor-pointer font-display shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {product.is_out_of_stock ? (
+                {activeIsOutOfStock ? (
                   <span>Out of Stock</span>
                 ) : isAddedAnimation ? (
                   <>
@@ -514,7 +647,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             </div>
 
             {/* Row 2: Secondary "Buy Now" Action */}
-            {!product.is_out_of_stock && (
+            {!activeIsOutOfStock && (
               <button
                 type="button"
                 onClick={handleBuyNow}
@@ -548,7 +681,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
               <Truck size={15} className="text-neutral-900 shrink-0" />
               <div>
                 <strong className="block text-neutral-900 font-medium font-display">Free Shipping</strong>
-                <span className="text-neutral-400">On orders over ₹1,999</span>
+                <span className="text-neutral-400">On orders over {formatPrice(1999)}</span>
               </div>
             </div>
 
@@ -705,6 +838,8 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
         selectedColorHex={currentColor?.hex}
         activeImage={activeImage}
         quantity={quantity}
+        variationId={activeVariation?.id}
+        variationPrice={activePrice}
       />
 
       {/* Sticky Bottom Purchase Bar (Synchronized with MobileBottomNav) */}
@@ -713,6 +848,8 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
         selectedSize={selectedSize}
         selectedColorName={currentColor?.name}
         activeImage={activeImage}
+        activePrice={activePrice}
+        isOutOfStock={activeIsOutOfStock}
         onAddToCart={handleAddToCart}
         onBuyNow={handleBuyNow}
         isAdded={isAddedAnimation}

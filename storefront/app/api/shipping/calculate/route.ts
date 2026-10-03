@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     const backendPayload = {
       items: items.map((i: any) => ({
         product_id: Number(i.product_id || i.id),
+        variation_id: i.variation_id ? Number(i.variation_id) : undefined,
         qty: Number(i.qty || i.quantity || 1),
       })),
       coupon_code: resolvedCouponCode,

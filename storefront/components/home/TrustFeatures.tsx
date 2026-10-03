@@ -3,13 +3,15 @@
 import React from 'react';
 import { Truck, RotateCcw, ShieldCheck, Banknote } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 export default function TrustFeatures() {
+  const { formatPrice } = useCurrency();
   const features = [
     {
       icon: Truck,
       title: 'Free Express Delivery',
-      desc: 'Complimentary courier shipping on all orders over ₹1,999. Dispatched within 24 hours.',
+      desc: `Complimentary courier shipping on all orders over ${formatPrice(1999)}. Dispatched within 24 hours.`,
     },
     {
       icon: RotateCcw,

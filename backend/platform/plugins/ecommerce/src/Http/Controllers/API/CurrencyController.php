@@ -71,8 +71,21 @@ class CurrencyController extends BaseApiController
     public function getCurrentCurrency(): JsonResponse
     {
         $currency = CurrencyFacade::getApplicationCurrency();
+        if (! $currency) {
+            $currency = CurrencyFacade::getDefaultCurrency();
+        }
 
-        return response()
-            ->json($currency);
+        $data = $currency ? $currency->toArray() : [];
+        $decSep = function_exists('get_ecommerce_setting') ? get_ecommerce_setting('decimal_separator', '.') : '.';
+        $thSep = function_exists('get_ecommerce_setting') ? get_ecommerce_setting('thousands_separator', ',') : ',';
+
+        $data['code'] = $currency?->title ?? 'INR';
+        $data['symbol'] = $currency?->symbol ?? '₹';
+        $data['position'] = ($currency?->is_prefix_symbol ?? true) ? 'before' : 'after';
+        $data['decimal_places'] = (int) ($currency?->decimals ?? 0);
+        $data['decimal_separator'] = ($decSep === 'space') ? ' ' : ($decSep ?: '.');
+        $data['thousand_separator'] = ($thSep === 'space') ? ' ' : ($thSep ?: ',');
+
+        return response()->json($data);
     }
 }

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ShoppingBag, Check, Zap } from 'lucide-react';
 import { Product } from '../../lib/types';
+import { useCurrency } from '../providers/CurrencyProvider';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface StickyAddToCartBarProps {
@@ -11,6 +12,8 @@ interface StickyAddToCartBarProps {
   selectedSize: string;
   selectedColorName?: string;
   activeImage: string;
+  activePrice?: number;
+  isOutOfStock?: boolean;
   onAddToCart: () => void;
   onBuyNow?: () => void;
   isAdded: boolean;
@@ -22,11 +25,14 @@ export default function StickyAddToCartBar({
   selectedSize,
   selectedColorName,
   activeImage,
+  activePrice,
+  isOutOfStock,
   onAddToCart,
   onBuyNow,
   isAdded,
   targetRef,
 }: StickyAddToCartBarProps) {
+  const { formatPrice } = useCurrency();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -63,7 +69,9 @@ export default function StickyAddToCartBar({
                   {product.name}
                 </h4>
                 <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] text-neutral-500">
-                  <span className="font-semibold text-neutral-900 font-display">{product.price_formatted}</span>
+                  <span className="font-semibold text-neutral-900 font-display">
+                    {formatPrice(activePrice ?? product.price)}
+                  </span>
                   <span>&bull;</span>
                   <span className="bg-neutral-100 px-1.5 py-0.2 text-[10px] uppercase font-medium text-neutral-700">
                     {selectedSize}
@@ -78,10 +86,13 @@ export default function StickyAddToCartBar({
               <button
                 type="button"
                 onClick={onAddToCart}
-                className="bg-white border border-neutral-950 text-neutral-950 text-xs uppercase tracking-wider font-semibold px-3.5 sm:px-5 py-2.5 hover:bg-neutral-50 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 font-display"
+                disabled={isOutOfStock}
+                className="bg-white border border-neutral-950 text-neutral-950 text-xs uppercase tracking-wider font-semibold px-3.5 sm:px-5 py-2.5 hover:bg-neutral-50 active:scale-98 transition-all cursor-pointer flex items-center gap-1.5 font-display disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Add to shopping bag"
               >
-                {isAdded ? (
+                {isOutOfStock ? (
+                  <span>Out of Stock</span>
+                ) : isAdded ? (
                   <>
                     <Check size={13} className="text-emerald-600" />
                     <span>Added</span>
@@ -95,14 +106,16 @@ export default function StickyAddToCartBar({
                 )}
               </button>
 
-              <button
-                type="button"
-                onClick={onBuyNow || onAddToCart}
-                className="bg-neutral-950 text-white text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-2.5 hover:bg-black active:scale-98 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer font-display"
-              >
-                <Zap size={13} className="text-white fill-white hidden xs:inline" />
-                <span>Buy Now</span>
-              </button>
+              {!isOutOfStock && (
+                <button
+                  type="button"
+                  onClick={onBuyNow || onAddToCart}
+                  className="bg-neutral-950 text-white text-xs uppercase tracking-widest font-semibold px-4 sm:px-6 py-2.5 sm:py-2.5 hover:bg-black active:scale-98 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer font-display"
+                >
+                  <Zap size={13} className="text-white fill-white hidden xs:inline" />
+                  <span>Buy Now</span>
+                </button>
+              )}
             </div>
           </div>
         </motion.aside>
