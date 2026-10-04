@@ -34,7 +34,7 @@ export default function AnnouncementBar({
     return (
         <aside
             aria-label="Announcements"
-            className="bg-[#111111] text-white text-[11px] tracking-widest uppercase font-medium py-2 px-4 sm:px-6 lg:px-10 border-b border-white/10"
+            className="bg-[#111111] text-white text-[9.5px] sm:text-[11px] tracking-wider sm:tracking-widest uppercase font-medium py-1.5 sm:py-2 px-3 sm:px-6 lg:px-10 border-b border-white/10"
         >
             <div className="w-full flex items-center justify-between">
                 <div className="hidden md:flex items-center space-x-4 text-white/60">
@@ -54,7 +54,7 @@ export default function AnnouncementBar({
                     )}
                 </div>
 
-                <div className="w-full md:w-auto text-center font-semibold tracking-wider text-white/90">
+                <div className="w-full md:w-auto text-center font-medium tracking-wide sm:tracking-wider text-white/90 text-[9.5px] sm:text-[11px]">
                     {currentMsg ? (
                         <span className="inline-flex items-center gap-2">
                             <span

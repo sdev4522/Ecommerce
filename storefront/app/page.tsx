@@ -88,13 +88,13 @@ export default async function HomePage() {
             </section>
 
             <ScrollReveal threshold={0.1}>
-                <section className="mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#eaded6]">
+                <section className="mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-10 pb-3 sm:pb-4 border-b border-[#eaded6]">
                         <div>
                             <span className="editorial-eyebrow block mb-1">
                                 Trending Now
                             </span>
-                            <h2 className="editorial-heading text-2xl sm:text-4xl">
+                            <h2 className="editorial-heading text-xl sm:text-3xl lg:text-4xl">
                                 The pieces women keep reaching for.
                             </h2>
                         </div>
@@ -110,7 +110,7 @@ export default async function HomePage() {
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4.5 lg:gap-5">
                         {products.slice(0, 8).map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))}
@@ -128,17 +128,17 @@ export default async function HomePage() {
 
             {/* 10. Customer Testimonials (Verified Reviews with Golden Stars) */}
             <ScrollReveal threshold={0.1}>
-                <section className="mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-22 bg-[#ffffff] border-t border-[#eaded6]">
-                    <div className="text-center max-w-xl mx-auto mb-12">
+                <section className="mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 bg-[#ffffff] border-t border-[#eaded6]">
+                    <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12">
                         <span className="editorial-eyebrow block mb-1">
                             Client Love
                         </span>
-                        <h2 className="editorial-heading text-2xl sm:text-4xl">
+                        <h2 className="editorial-heading text-xl sm:text-3xl lg:text-4xl">
                             Women who wear the edit, wear it everywhere.
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
                         {[
                             {
                                 quote: "The fit is incredible. I bought the ivory midi for work and styled it with a blazer the same day. Total confidence boost.",
@@ -158,7 +158,7 @@ export default async function HomePage() {
                         ].map((review, i) => (
                             <div
                                 key={i}
-                                className="bg-[#fcfbf9] p-6 sm:p-8 border border-neutral-200/60 rounded-[6px] shadow-[0_4px_16px_rgba(45,33,29,0.04)] hover:shadow-[0_8px_24px_rgba(45,33,29,0.07)] transition-all flex flex-col justify-between"
+                                className="bg-[#fcfbf9] p-4.5 sm:p-8 border border-neutral-200/60 rounded-[6px] shadow-[0_4px_16px_rgba(45,33,29,0.04)] hover:shadow-[0_8px_24px_rgba(45,33,29,0.07)] transition-all flex flex-col justify-between"
                             >
                                 <div>
                                     <div className="flex text-amber-500 mb-3">

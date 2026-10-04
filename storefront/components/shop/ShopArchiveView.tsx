@@ -204,8 +204,8 @@ export default function ShopArchiveView({
       {/* ===================================================================
           1. HEADER & BREADCRUMBS
           =================================================================== */}
-      <div className="border-b border-neutral-100 pb-8 mb-8">
-        <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar whitespace-nowrap text-[11px] uppercase tracking-widest text-neutral-400 mb-3 pb-1">
+      <div className="border-b border-neutral-100 pb-5 sm:pb-8 mb-6 sm:mb-8">
+        <nav className="flex items-center gap-1.5 overflow-x-auto no-scrollbar whitespace-nowrap text-[10px] sm:text-[11px] uppercase tracking-widest text-neutral-400 mb-2.5 sm:mb-3 pb-1">
           <Link href="/" className="hover:text-black transition-colors font-mono shrink-0">
             Home
           </Link>
@@ -217,13 +217,13 @@ export default function ShopArchiveView({
           <span className="text-black font-semibold font-mono shrink-0 truncate max-w-[170px] sm:max-w-none">{categoryTitle}</span>
         </nav>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-4xl font-display text-neutral-900 font-bold tracking-tight">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
+          <div className="space-y-1.5 sm:space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-display text-neutral-900 font-bold tracking-tight">
                 {categoryTitle}
               </h1>
-              <Badge variant="outline" className="text-xs font-mono px-2.5 py-0.5">
+              <Badge variant="outline" className="text-[11px] sm:text-xs font-mono px-2 sm:px-2.5 py-0.5">
                 {total} {total === 1 ? 'Piece' : 'Pieces'}
               </Badge>
             </div>
@@ -673,7 +673,7 @@ export default function ShopArchiveView({
                 </div>
               ) : (
                 <div
-                  className={`grid gap-3 sm:gap-4.5 mb-12 ${viewMode === 'grid-4'
+                  className={`grid gap-2.5 sm:gap-4.5 mb-8 sm:mb-12 ${viewMode === 'grid-4'
                     ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                     : viewMode === 'grid-3'
                       ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3'

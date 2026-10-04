@@ -361,12 +361,12 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           <div className="border-b border-neutral-100 pb-5 space-y-2.5">
 
             {/* Product Title */}
-            <h1 className="text-2xl sm:text-3xl font-display text-neutral-950 font-medium tracking-tight leading-snug">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-display text-neutral-950 font-medium tracking-tight leading-snug">
               {product.name}
             </h1>
             {/* Category / Brand Eyebrow */}
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-medium font-display">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-neutral-400 font-medium font-display truncate max-w-[65%] sm:max-w-none">
                 {product.brand?.name || product.category?.name || 'LUNE'} &bull; SKU: {activeSku}
               </span>
 
@@ -377,7 +377,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                   const el = document.getElementById('reviews-section');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="flex items-center space-x-1 text-neutral-700 hover:text-black cursor-pointer group transition-colors"
+                className="flex items-center space-x-1 text-neutral-700 hover:text-black cursor-pointer group transition-colors shrink-0"
                 title="View customer reviews"
               >
                 <Star size={12} className="fill-amber-400 text-amber-400" />
@@ -389,12 +389,12 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             </div>
 
             {/* Price & Discount - Instantly synchronized with selected variation */}
-            <div className="pt-1 flex items-baseline space-x-3">
-              <span className="text-2xl sm:text-3xl font-display font-semibold text-neutral-950">
+            <div className="pt-1 flex items-baseline space-x-2.5 sm:space-x-3">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-display font-semibold text-neutral-950">
                 {formatPrice(activePrice)}
               </span>
               {activeOriginalPrice && activeOriginalPrice > activePrice && (
-                <span className="text-sm text-neutral-400 line-through">
+                <span className="text-xs sm:text-sm text-neutral-400 line-through">
                   {formatPrice(activeOriginalPrice)}
                 </span>
               )}
@@ -578,19 +578,19 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           {/* ------------------------------------------------------------- */}
           <div ref={mainCtaRef} className="space-y-3 pt-2">
             {/* Row 1: Quantity Stepper + Primary Add To Bag + Wishlist */}
-            <div className="flex space-x-2.5">
+            <div className="flex space-x-2 sm:space-x-2.5">
               {/* Stepper */}
               <div className="flex items-center border border-neutral-300 bg-white">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
-                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-2.5 sm:p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Decrease quantity"
                 >
                   <Minus size={13} />
                 </button>
-                <span className="px-3 text-xs font-semibold text-neutral-900 font-mono select-none">
+                <span className="px-2 sm:px-3 text-xs font-semibold text-neutral-900 font-mono select-none">
                   {quantity}
                 </span>
                 <button
@@ -603,7 +603,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                     setQuantity(quantity + 1);
                   }}
                   disabled={typeof activeStock === 'number' && activeStock > 0 && quantity >= activeStock}
-                  className="p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="p-2.5 sm:p-3 text-neutral-600 hover:text-black transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Increase quantity"
                 >
                   <Plus size={13} />
@@ -615,7 +615,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                 type="button"
                 onClick={handleAddToCart}
                 disabled={activeIsOutOfStock}
-                className="flex-1 bg-neutral-950 text-white hover:bg-black active:scale-[0.98] text-xs uppercase tracking-[0.2em] font-semibold py-3.5 px-4 transition-all duration-150 flex items-center justify-center space-x-2 cursor-pointer font-display shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-neutral-950 text-white hover:bg-black active:scale-[0.98] text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-semibold py-3 sm:py-3.5 px-3 sm:px-4 transition-all duration-150 flex items-center justify-center space-x-2 cursor-pointer font-display shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {activeIsOutOfStock ? (
                   <span>Out of Stock</span>
@@ -636,7 +636,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
               <button
                 type="button"
                 onClick={handleWishlistToggle}
-                className={`p-3.5 border transition-all duration-150 active:scale-95 cursor-pointer ${isFavorite
+                className={`p-2.5 sm:p-3.5 border transition-all duration-150 active:scale-95 cursor-pointer flex items-center justify-center ${isFavorite
                   ? 'bg-red-50 border-red-200 text-red-600'
                   : 'bg-white border-neutral-300 text-neutral-700 hover:border-black'
                   }`}
@@ -652,8 +652,8 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
                 type="button"
                 onClick={handleBuyNow}
                 disabled={isBuyNowProcessing}
-                className="w-full bg-white hover:bg-neutral-50 active:scale-[0.99] border border-neutral-950 text-neutral-950 text-xs uppercase tracking-[0.2em] font-semibold py-3.5 flex items-center justify-center space-x-2 transition-all duration-150 cursor-pointer font-display group disabled:opacity-60 disabled:cursor-not-allowed"
                 aria-label="Buy Now"
+                className="w-full bg-white hover:bg-neutral-50 active:scale-[0.99] border border-neutral-950 text-neutral-950 text-[11px] sm:text-xs uppercase tracking-[0.14em] sm:tracking-[0.2em] font-semibold py-3 sm:py-3.5 flex items-center justify-center space-x-2 transition-all duration-150 cursor-pointer font-display group disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Zap size={14} className="text-neutral-950 group-hover:scale-110 transition-transform" />
                 <span>{isBuyNowProcessing ? 'Processing...' : 'Buy Now'}</span>
@@ -801,16 +801,16 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
       {/* COMPLETE THE LOOK / CURATED RELATED ENSEMBLES                 */}
       {/* ------------------------------------------------------------- */}
       {relatedProducts.length > 0 && (
-        <section className="mt-20 pt-12 border-t border-neutral-100">
-          <div className="mb-8">
-            <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-medium block mb-1 font-display">
+        <section className="mt-12 sm:mt-20 pt-8 sm:pt-12 border-t border-neutral-100">
+          <div className="mb-6 sm:mb-8">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-medium block mb-1 font-display">
               Curated Ensembles
             </span>
-            <h3 className="text-2xl font-display text-neutral-900 font-medium">
+            <h3 className="text-xl sm:text-2xl font-display text-neutral-900 font-medium">
               Complete The Look
             </h3>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4.5 lg:gap-6">
             {relatedProducts.slice(0, 4).map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}

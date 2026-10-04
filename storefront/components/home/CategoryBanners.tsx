@@ -83,14 +83,14 @@ export default function CategoryBanners({ categories }: CategoryBannersProps) {
   if (!displayCategories || displayCategories.length === 0) return null;
 
   return (
-    <section className="mx-auto px-3.5 sm:px-6 lg:px-8 py-12 sm:py-20">
+    <section className="mx-auto px-3.5 sm:px-6 lg:px-8 py-8 sm:py-16">
       {/* Section Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10 pb-4 border-b border-neutral-200 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-10 pb-3.5 sm:pb-4 border-b border-neutral-200 gap-3">
         <div>
-          <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-500 font-semibold block mb-1 font-display">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-neutral-500 font-semibold block mb-1 font-display">
             Curated Collections
           </span>
-          <h2 className="text-2xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
+          <h2 className="text-xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
             Explore By Category
           </h2>
           <p className="text-xs text-neutral-500 mt-1 max-w-lg font-light">
@@ -152,25 +152,25 @@ export default function CategoryBanners({ categories }: CategoryBannersProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none" />
 
                   {/* Bottom Content Area */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 flex flex-col justify-end pointer-events-none">
-                    <div className="mb-2">
+                  <div className="absolute inset-x-0 bottom-0 p-3.5 sm:p-6 flex flex-col justify-end pointer-events-none">
+                    <div className="mb-1.5 sm:mb-2">
                       <Badge variant="dark" className="text-[9px] bg-black/60 backdrop-blur-xs border-white/20">
                         {category.products_count && category.products_count > 0
                           ? `${category.products_count} Products Available`
                           : "Curated Selection"}
                       </Badge>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-display text-white font-bold group-hover:text-neutral-200 transition-colors">
+                    <h3 className="text-base sm:text-xl font-display text-white font-bold group-hover:text-neutral-200 transition-colors">
                       {category.name}
                     </h3>
                     {category.description ? (
-                      <p className="text-xs text-white/70 line-clamp-1 mt-1 font-normal">
+                      <p className="text-[11px] sm:text-xs text-white/70 line-clamp-1 mt-0.5 sm:mt-1 font-normal">
                         {category.description}
                       </p>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-white/80 group-hover:text-white mt-1.5 font-medium transition-colors">
+                      <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-white/80 group-hover:text-white mt-1 font-medium transition-colors">
                         <span>Explore Collection</span>
-                        <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight size={11} className="group-hover:translate-x-1 transition-transform" />
                       </span>
                     )}
                   </div>

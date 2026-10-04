@@ -15,21 +15,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const products = await getProducts({ q: query });
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="max-w-2xl mb-12">
-        <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-semibold block mb-2">
+    <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 py-8 sm:py-16">
+      <div className="max-w-2xl mb-8 sm:mb-12">
+        <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-neutral-400 font-semibold block mb-1.5 sm:mb-2">
           Search Results
         </span>
-        <h1 className="text-3xl font-display text-neutral-900 font-medium">
+        <h1 className="text-2xl sm:text-3xl font-display text-neutral-900 font-medium">
           {query ? `Results for “${query}”` : 'Search All Pieces'}
         </h1>
-        <p className="text-xs text-neutral-500 mt-2">
+        <p className="text-xs text-neutral-500 mt-1.5 sm:mt-2">
           Found <strong>{products.length}</strong> {products.length === 1 ? 'piece' : 'pieces'}.
         </p>
       </div>
 
       {products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4.5 lg:gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

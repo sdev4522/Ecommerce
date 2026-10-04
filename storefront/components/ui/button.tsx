@@ -18,10 +18,10 @@ const buttonVariants = cva(
         darkGlass: "bg-neutral-950/80 backdrop-blur-md text-white border border-white/20 hover:bg-neutral-900",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        xs: "h-7 px-2.5 text-xs rounded-sm",
+        default: "h-9 px-4 py-2 text-xs sm:text-sm",
+        xs: "h-7 px-2.5 text-[11px] rounded-sm",
         sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-11 rounded-md px-8 text-sm",
+        lg: "h-10 sm:h-11 rounded-md px-5 sm:px-8 text-xs sm:text-sm",
         icon: "h-9 w-9",
         "icon-sm": "h-8 w-8",
         "icon-lg": "h-10 w-10",

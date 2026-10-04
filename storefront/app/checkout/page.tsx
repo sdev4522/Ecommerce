@@ -710,8 +710,8 @@ export default function CheckoutPage() {
       </header>
 
       {/* Main Checkout Area */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="max-w-[1600px] mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-12">
+        <div className="mb-5 sm:mb-6 flex items-center justify-between">
           <Link
             href="/shop"
             className="inline-flex items-center text-xs uppercase tracking-wider text-neutral-500 hover:text-neutral-900 transition-colors gap-1.5"
@@ -724,12 +724,12 @@ export default function CheckoutPage() {
 
         <form
           onSubmit={handleSubmitOrder}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-y-6 lg:gap-x-12 lg:gap-y-8 items-start"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-y-5 sm:gap-y-6 lg:gap-x-12 lg:gap-y-8 items-start"
         >
           {/* Section 1: Contact Information */}
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-1 bg-white border border-neutral-200/90 p-6 sm:p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6 pb-3 border-b border-neutral-100">
-              <h2 className="text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-1 bg-white border border-neutral-200/90 p-4 sm:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-5 sm:mb-6 pb-3 border-b border-neutral-100">
+              <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
                 <User size={18} className="text-neutral-600" />
                 1. Contact Information
               </h2>
@@ -791,9 +791,9 @@ export default function CheckoutPage() {
           </div>
 
           {/* Section 2: Delivery Address */}
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2 bg-white border border-neutral-200/90 p-6 sm:p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6 pb-3 border-b border-neutral-100">
-              <h2 className="text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2 bg-white border border-neutral-200/90 p-4 sm:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-5 sm:mb-6 pb-3 border-b border-neutral-100">
+              <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
                 <MapPin size={18} className="text-neutral-600" />
                 2. Delivery Address
               </h2>
@@ -881,10 +881,10 @@ export default function CheckoutPage() {
           {/* Section 3 (Mobile) / Right Rail (Desktop): Order Summary */}
           <aside
             aria-label="Order Summary"
-            className="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-4 lg:sticky lg:top-24 space-y-6"
+            className="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-4 lg:sticky lg:top-24 space-y-5 sm:space-y-6"
           >
-            <div className="bg-white border border-neutral-200/90 p-6 sm:p-8 shadow-sm">
-              <h2 className="text-base font-semibold uppercase tracking-wider text-neutral-900 mb-4 pb-3 border-b border-neutral-100 flex items-center justify-between">
+            <div className="bg-white border border-neutral-200/90 p-4 sm:p-8 shadow-sm">
+              <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-neutral-900 mb-4 pb-3 border-b border-neutral-100 flex items-center justify-between">
                 <span className="flex items-center gap-2">
                   <ShoppingBag size={18} className="text-neutral-600" />
                   Order Summary
@@ -1104,9 +1104,9 @@ export default function CheckoutPage() {
           </aside>
 
           {/* Section 4: Payment Method */}
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3 bg-white border border-neutral-200/90 p-6 sm:p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6 pb-3 border-b border-neutral-100">
-              <h2 className="text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3 bg-white border border-neutral-200/90 p-4 sm:p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-5 sm:mb-6 pb-3 border-b border-neutral-100">
+              <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-neutral-900 flex items-center gap-2">
                 <CreditCard size={18} className="text-neutral-600" />
                 3. Payment Method
               </h2>
@@ -1211,11 +1211,11 @@ export default function CheckoutPage() {
 
           {/* Section 5: Place Order CTA, Terms & Mobile Trust Badges */}
           <div className="lg:col-span-7 lg:col-start-1 lg:row-start-4 space-y-6">
-            <div className="pt-2">
+            <div className="pt-1 sm:pt-2">
               <button
                 type="submit"
                 disabled={isSubmitting || isCalculatingShipping || Boolean(shippingError) || grandTotal === null}
-                className="w-full bg-neutral-950 hover:bg-neutral-900 text-white font-medium py-4 px-6 text-base tracking-wide uppercase transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group cursor-pointer font-display"
+                className="w-full bg-neutral-950 hover:bg-neutral-900 text-white font-medium py-3.5 sm:py-4 px-4 sm:px-6 text-sm sm:text-base tracking-wide uppercase transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 sm:gap-3 group cursor-pointer font-display"
               >
                 {isSubmitting ? (
                   <>
@@ -1238,26 +1238,26 @@ export default function CheckoutPage() {
                   </>
                 ) : (
                   <>
-                    <Lock size={16} />
+                    <Lock size={15} />
                     <span>
                       {paymentMethod === 'cod' ? 'Place Order (COD)' : 'Pay Now'} • {formatPrice(grandTotal ?? 0)}
                     </span>
                     <ArrowRight
-                      size={16}
+                      size={15}
                       className="group-hover:translate-x-1 transition-transform"
                     />
                   </>
                 )}
               </button>
 
-              <p className="text-center text-xs text-neutral-500 mt-3 flex items-center justify-center gap-2">
-                <ShieldCheck size={14} className="text-emerald-600" />
-                By placing this order, you agree to our Terms of Sale and Privacy Policy.
+              <p className="text-center text-[11px] sm:text-xs text-neutral-500 mt-2.5 sm:mt-3 flex items-center justify-center gap-1.5 sm:gap-2">
+                <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
+                <span>By placing this order, you agree to our Terms of Sale and Privacy Policy.</span>
               </p>
             </div>
 
             {/* Trust Badges Card: Shown below Place Order on mobile */}
-            <div className="lg:hidden bg-white border border-neutral-200/90 p-5 shadow-sm space-y-3">
+            <div className="lg:hidden bg-white border border-neutral-200/90 p-4 sm:p-5 shadow-sm space-y-3">
               <div className="flex items-start gap-3">
                 <Truck size={18} className="text-neutral-700 flex-shrink-0 mt-0.5" />
                 <div>

@@ -26,15 +26,15 @@ export default function BrandValues() {
   ];
 
   return (
-    <section className="border-y border-neutral-200/80 bg-[#ffffff] py-12 sm:py-16">
+    <section className="border-y border-neutral-200/80 bg-[#ffffff] py-8 sm:py-14">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
           {values.map((val) => {
             const Icon = val.icon;
             return (
-              <div key={val.title} className="flex flex-col items-start space-y-3">
-                <div className="w-11 h-11 rounded-lg bg-white shadow-xs border border-neutral-200 flex items-center justify-center text-neutral-900">
-                  <Icon size={20} strokeWidth={1.8} />
+              <div key={val.title} className="flex flex-col items-start space-y-2 sm:space-y-3">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-white shadow-xs border border-neutral-200 flex items-center justify-center text-neutral-900">
+                  <Icon size={19} strokeWidth={1.8} />
                 </div>
                 <h4 className="text-xs uppercase tracking-wider font-bold text-neutral-900 font-display">
                   {val.title}

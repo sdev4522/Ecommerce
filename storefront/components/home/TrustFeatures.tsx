@@ -31,15 +31,15 @@ export default function TrustFeatures() {
   ];
 
   return (
-    <section className="bg-black text-white border-y border-neutral-800 py-12 sm:py-14">
+    <section className="bg-black text-white border-y border-neutral-800 py-8 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {features.map((item, index) => {
             const Icon = item.icon;
             return (
               <Card
                 key={index}
-                className="border-neutral-800 bg-neutral-950/70 p-5 hover:border-neutral-700 transition-all text-white flex items-start gap-4 shadow-sm"
+                className="border-neutral-800 bg-neutral-950/70 p-4 sm:p-5 hover:border-neutral-700 transition-all text-white flex items-start gap-3.5 sm:gap-4 shadow-sm"
               >
                 <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0 text-white">
                   <Icon size={18} />

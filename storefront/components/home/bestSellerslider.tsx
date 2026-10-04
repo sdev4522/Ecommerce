@@ -117,17 +117,17 @@ export function BestSellersSlider({
     }, [emblaApi]);
 
     return (
-        <section className="mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 border-t border-neutral-200 overflow-hidden">
+        <section className="mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20 border-t border-neutral-200 overflow-hidden">
             {/* Header with Title & Filter Tabs */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 sm:mb-10 pb-4 border-b border-neutral-200 gap-4">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-10 pb-3 sm:pb-4 border-b border-neutral-200 gap-3 sm:gap-4">
                 <div>
                     <div className="flex items-center gap-1.5 mb-1 text-neutral-950">
-                        <Flame size={14} className="fill-neutral-950" />
-                        <span className="text-[11px] uppercase tracking-[0.25em] font-bold font-display">
+                        <Flame size={13} className="fill-neutral-950" />
+                        <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] font-bold font-display">
                             Most Coveted
                         </span>
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
+                    <h2 className="text-xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
                         {title}
                     </h2>
                     {subtitle && (
@@ -141,30 +141,31 @@ export function BestSellersSlider({
                     <Tabs
                         value={activeTab}
                         onValueChange={(val) => setActiveTab(val as any)}
+                        className="w-full md:w-auto overflow-x-auto"
                     >
-                        <TabsList className="h-10 bg-neutral-100 p-1">
-                            <TabsTrigger value="all">All</TabsTrigger>
-                            <TabsTrigger value="dresses">
+                        <TabsList className="h-9 sm:h-10 bg-neutral-100 p-1">
+                            <TabsTrigger value="all" className="text-xs sm:text-sm">All</TabsTrigger>
+                            <TabsTrigger value="dresses" className="text-xs sm:text-sm">
                                 Dresses &amp; Sets
                             </TabsTrigger>
-                            <TabsTrigger value="tailoring">Tailoring</TabsTrigger>
-                            <TabsTrigger value="knitwear">Knitwear</TabsTrigger>
+                            <TabsTrigger value="tailoring" className="text-xs sm:text-sm">Tailoring</TabsTrigger>
+                            <TabsTrigger value="knitwear" className="text-xs sm:text-sm">Knitwear</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 )}
             </div>
 
             {/* Carousel Slider Track with Strict CSS Sizing to Eliminate CLS and Forced Reflows */}
-            <div className="relative min-h-[460px] sm:min-h-[500px]">
+            <div className="relative min-h-[440px] sm:min-h-[500px]">
                 <div
                     ref={emblaRef}
                     className="overflow-hidden select-none cursor-grab active:cursor-grabbing"
                 >
-                    <div className="flex -ml-3 sm:-ml-4 pb-4">
+                    <div className="flex -ml-2.5 sm:-ml-4 pb-4">
                         {displayProducts.map((product, idx) => (
                             <div
                                 key={`${product.id}-${idx}`}
-                                className="min-w-0 shrink-0 grow-0 basis-[78%] sm:basis-[48%] md:basis-[32%] lg:basis-[24%] pl-3 sm:pl-4"
+                                className="min-w-0 shrink-0 grow-0 basis-[72%] sm:basis-[48%] md:basis-[32%] lg:basis-[24%] pl-2.5 sm:pl-4"
                             >
                                 <div className="h-full">
                                     <ProductCard

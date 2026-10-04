@@ -86,11 +86,11 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
     };
 
     return (
-        <footer className="bg-white text-black pt-16 pb-12 border-t border-neutral-800 font-sans">
+        <footer className="bg-white text-black pt-10 sm:pt-16 pb-8 sm:pb-12 border-t border-neutral-200 font-sans">
             <div className="w-full px-4 sm:px-6 lg:px-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 pb-16 border-b border-neutral-800">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12 pb-10 sm:pb-16 border-b border-neutral-200">
                     {/* Column 1 & 2: Brand Story, Newsletter & Socials */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-5 sm:space-y-6">
                         <Link href="/" className="inline-block">
                             {siteSettings?.logo ? (
                                 <div className="relative h-8 w-36 mb-2">
@@ -142,14 +142,14 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                         )}
 
                         {/* Working Newsletter Box */}
-                        <div className="pt-2">
-                            <p className="text-[12px] text-black mb-3 font-light">
+                        <div className="pt-1 sm:pt-2">
+                            <p className="text-[12px] text-neutral-800 mb-2.5 sm:mb-3 font-normal">
                                 Sign up with your email to get your instant 10%
                                 discount coupon and early access to new drops.
                             </p>
 
                             {subscribed ? (
-                                <div className="p-4 bg-neutral-900 border border-emerald-600/40 text-xs text-emerald-400 space-y-2">
+                                <div className="p-3.5 sm:p-4 bg-neutral-900 border border-emerald-600/40 text-xs text-emerald-400 space-y-2 rounded-xs">
                                     <div className="flex items-center space-x-2 font-medium">
                                         <Check
                                             size={16}
@@ -159,7 +159,7 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                                             You're on the list! Welcome.
                                         </span>
                                     </div>
-                                    <p className="text-[11px] text-neutral-900 font-light">
+                                    <p className="text-[11px] text-neutral-300 font-light">
                                         Your 10% off promo code is{" "}
                                         <strong className="text-white font-mono bg-neutral-800 px-1.5 py-0.5">
                                             WELCOME10
@@ -168,7 +168,7 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                                     </p>
                                     <button
                                         onClick={() => setSubscribed(false)}
-                                        className="text-[11px] text-black underline hover:text-white cursor-pointer"
+                                        className="text-[11px] text-white underline hover:text-neutral-300 cursor-pointer"
                                     >
                                         Subscribe another email
                                     </button>
@@ -178,7 +178,7 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                                     onSubmit={handleNewsletterSubmit}
                                     className="space-y-2 max-w-md"
                                 >
-                                    <div className="flex">
+                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
                                         <input
                                             type="email"
                                             value={email}
@@ -187,12 +187,12 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                                             }
                                             placeholder="Enter your email address..."
                                             required
-                                            className="flex-1 border border-neutral-700 text-xs px-4 py-3 text-white placeholder:text-neutral-500 outline-none focus:border-white transition-colors"
+                                            className="flex-1 border border-neutral-300 text-xs px-3.5 sm:px-4 py-2.5 sm:py-3 text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-950 bg-neutral-50 transition-colors"
                                         />
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="bg-white text-black text-xs uppercase tracking-wider px-5 py-3 font-semibold hover:bg-neutral-200 transition-colors flex items-center gap-1.5 shrink-0 font-display cursor-pointer disabled:opacity-60"
+                                            className="bg-neutral-950 text-white text-xs uppercase tracking-wider px-4 sm:px-5 py-2.5 sm:py-3 font-semibold hover:bg-neutral-800 transition-colors flex items-center justify-center gap-1.5 shrink-0 font-display cursor-pointer disabled:opacity-60"
                                         >
                                             {isSubmitting ? (
                                                 <>
@@ -212,7 +212,7 @@ export default function Footer({ siteSettings, footerMenu }: FooterProps) {
                                     </div>
 
                                     {errorMessage && (
-                                        <p className="text-[11px] text-red-400 font-light">
+                                        <p className="text-[11px] text-red-500 font-light">
                                             {errorMessage}
                                         </p>
                                     )}

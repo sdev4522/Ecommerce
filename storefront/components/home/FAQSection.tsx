@@ -115,24 +115,24 @@ export default function FAQSection() {
   });
 
   return (
-    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+    <section className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-20">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
         {/* Left Column: Heading & Category Navigation */}
-        <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
+        <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-5 sm:space-y-6">
           <div>
-            <span className="text-[11px] uppercase tracking-[0.25em] text-neutral-500 font-semibold block mb-1 font-display">
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-neutral-500 font-semibold block mb-1 font-display">
               Common Inquiries
             </span>
-            <h2 className="text-2xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
+            <h2 className="text-xl sm:text-3xl font-display text-neutral-900 font-bold tracking-tight">
               Frequently Asked Questions
             </h2>
-            <p className="text-xs text-neutral-500 mt-2 leading-relaxed">
+            <p className="text-xs text-neutral-500 mt-1.5 sm:mt-2 leading-relaxed">
               Find clear answers about shipping times, payment methods, Cash on Delivery, order tracking, and our 7-day return guarantee.
             </p>
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex flex-wrap lg:flex-col gap-1.5 pt-2">
+          <div className="flex flex-wrap lg:flex-col gap-1.5 pt-1 sm:pt-2">
             {[
               { id: 'all', label: 'All Inquiries', icon: HelpCircle },
               { id: 'shipping', label: 'Shipping & Delivery', icon: Truck },
@@ -146,7 +146,7 @@ export default function FAQSection() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveCategory(tab.id as any)}
-                  className={`text-xs uppercase tracking-wider px-4 py-3 text-left font-semibold transition-all flex items-center justify-between gap-2 cursor-pointer font-display ${isActive
+                  className={`text-[11px] sm:text-xs uppercase tracking-wider px-3 sm:px-4 py-2.5 sm:py-3 text-left font-semibold transition-all flex items-center justify-between gap-2 cursor-pointer font-display ${isActive
                     ? 'bg-neutral-950 text-white shadow-xs'
                     : 'bg-neutral-50 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 border border-neutral-200'
                     }`}
@@ -162,9 +162,9 @@ export default function FAQSection() {
           </div>
 
           {/* Concierge Support Card using shadcn Card */}
-          <Card className="border-neutral-200 bg-neutral-50/70 p-5 space-y-3">
+          <Card className="border-neutral-200 bg-neutral-50/70 p-4 sm:p-5 space-y-2.5 sm:space-y-3">
             <div className="flex items-center gap-2 text-neutral-900">
-              <MessageCircle size={18} className="text-neutral-950" />
+              <MessageCircle size={17} className="text-neutral-950" />
               <h4 className="text-xs uppercase tracking-wider font-bold font-display">
                 Still have a question?
               </h4>
@@ -185,26 +185,26 @@ export default function FAQSection() {
 
         {/* Right Column: shadcn Accordion */}
         <div className="lg:col-span-8">
-          <Accordion type="multiple" defaultValue={['faq-1']} className="space-y-3">
+          <Accordion type="multiple" defaultValue={['faq-1']} className="space-y-2.5 sm:space-y-3">
             {filteredFaqs.map((faq) => (
               <AccordionItem
                 key={faq.id}
                 value={faq.id}
-                className="border border-neutral-200 bg-white px-5 sm:px-6 shadow-xs hover:border-neutral-300 transition-colors"
+                className="border border-neutral-200 bg-white px-4 sm:px-6 shadow-xs hover:border-neutral-300 transition-colors"
               >
-                <AccordionTrigger className="hover:no-underline py-5">
-                  <div className="flex flex-col items-start gap-1.5 text-left pr-4">
+                <AccordionTrigger className="hover:no-underline py-3.5 sm:py-5">
+                  <div className="flex flex-col items-start gap-1 sm:gap-1.5 text-left pr-3 sm:pr-4">
                     {faq.badge && (
                       <Badge variant="secondary" className="text-[9px]">
                         {faq.badge}
                       </Badge>
                     )}
-                    <span className="text-sm sm:text-base font-semibold text-neutral-900 leading-snug">
+                    <span className="text-xs sm:text-sm md:text-base font-semibold text-neutral-900 leading-snug">
                       {faq.question}
                     </span>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="text-xs sm:text-sm text-neutral-600 leading-relaxed pt-1 pb-5 border-t border-neutral-100">
+                <AccordionContent className="text-xs sm:text-sm text-neutral-600 leading-relaxed pt-1 pb-3.5 sm:pb-5 border-t border-neutral-100">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

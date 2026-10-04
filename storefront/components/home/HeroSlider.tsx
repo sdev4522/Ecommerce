@@ -150,7 +150,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
     return (
         <section className="w-full px-2.5 sm:px-5 pt-1 sm:pt-2">
             <div
-                className="relative h-[72vh] sm:h-[84vh] min-h-[500px] sm:min-h-[600px] max-h-[850px] bg-black overflow-hidden select-none rounded-[16px] touch-pan-y"
+                className="relative h-[66vh] sm:h-[82vh] min-h-[440px] sm:min-h-[580px] max-h-[820px] bg-black overflow-hidden select-none rounded-[12px] sm:rounded-[16px] touch-pan-y"
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onTouchStart={handleTouchStart}
@@ -184,21 +184,21 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                 </AnimatePresence>
 
                 {/* Top Floating Badge & Slide Counter */}
-                <div className="absolute inset-x-4 top-4 sm:top-8 z-20 flex items-center justify-between pointer-events-none">
-                    <div className="glass-dark px-3 py-1.5 sm:px-3.5 sm:py-2 border border-white/20 rounded-full flex items-center space-x-2 text-white">
+                <div className="absolute inset-x-3.5 sm:inset-x-4 top-3.5 sm:top-8 z-20 flex items-center justify-between pointer-events-none">
+                    <div className="glass-dark px-2.5 py-1 sm:px-3.5 sm:py-2 border border-white/20 rounded-full flex items-center space-x-1.5 sm:space-x-2 text-white">
                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#f7d7c5] animate-pulse" />
-                        <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.22em] font-semibold font-display">
+                        <span className="text-[8.5px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.22em] font-semibold font-display truncate max-w-[170px] sm:max-w-none">
                             {slide.tag}
                         </span>
                     </div>
 
-                    <div className="glass-dark px-2.5 py-0.5 sm:px-3 sm:py-1 border border-white/20 rounded-full text-white text-[10px] sm:text-[11px] font-mono tracking-widest font-medium">
+                    <div className="glass-dark px-2 py-0.5 sm:px-3 sm:py-1 border border-white/20 rounded-full text-white text-[9.5px] sm:text-[11px] font-mono tracking-widest font-medium">
                         0{current + 1} / 0{activeSlides.length}
                     </div>
                 </div>
 
                 {/* Content Overlay */}
-                <div className="relative h-full px-4 sm:px-6 lg:px-10 flex items-end justify-center pb-20 sm:pb-24 z-10">
+                <div className="relative h-full px-4 sm:px-6 lg:px-10 flex items-end justify-center pb-16 sm:pb-24 z-10">
                     <div className="max-w-3xl flex flex-col items-center justify-center text-center">
                         <AnimatePresence mode="wait" initial={false}>
                             <motion.div
@@ -220,7 +220,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                         transition: { duration: 0.25 },
                                     },
                                 }}
-                                className="space-y-4 sm:space-y-5"
+                                className="space-y-3.5 sm:space-y-5"
                             >
                                 <motion.div
                                     variants={{
@@ -231,7 +231,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                             transition: { duration: 0.5, ease: [0.19, 1, 0.22, 1] },
                                         },
                                     }}
-                                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-[10px] uppercase tracking-[0.24em] text-white/90 backdrop-blur-xs font-display"
+                                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-0.5 sm:px-3.5 sm:py-1 text-[9px] sm:text-[10px] uppercase tracking-[0.22em] sm:tracking-[0.24em] text-white/90 backdrop-blur-xs font-display"
                                 >
                                     <span>New Season Edit</span>
                                 </motion.div>
@@ -245,7 +245,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                             transition: { duration: 0.65, ease: [0.19, 1, 0.22, 1] },
                                         },
                                     }}
-                                    className="max-w-2xl text-4xl sm:text-5xl lg:text-7xl font-display font-semibold leading-[0.92] tracking-[-0.04em] text-white drop-shadow-md"
+                                    className="max-w-2xl text-2xl sm:text-4xl lg:text-6xl font-display font-semibold leading-[1.05] sm:leading-[0.94] tracking-[-0.03em] text-white drop-shadow-md"
                                 >
                                     {slide.title}
                                 </motion.h1>
@@ -259,7 +259,7 @@ export default function HeroSlider({ slides }: HeroSliderProps) {
                                             transition: { duration: 0.6, ease: [0.19, 1, 0.22, 1] },
                                         },
                                     }}
-                                    className="max-w-xl mx-auto text-sm sm:text-base text-white/80 leading-relaxed font-sans"
+                                    className="max-w-xl mx-auto text-xs sm:text-base text-white/80 leading-relaxed font-sans line-clamp-2 sm:line-clamp-none"
                                 >
                                     {slide.description}
                                 </motion.p>
