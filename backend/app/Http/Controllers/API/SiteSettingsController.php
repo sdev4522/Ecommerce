@@ -73,14 +73,53 @@ class SiteSettingsController extends Controller
         ];
 
         // 5. Website Tracking
+        $rawType = function_exists('setting') ? setting('google_tag_manager_type') : null;
+        if ($rawType === 'code') {
+            $rawType = 'custom';
+        }
+
+        $gtmContainerId = function_exists('setting') ? setting('gtm_container_id') : null;
+        $googleTagManagerId = function_exists('setting')
+            ? (setting('google_tag_manager_id') ?: setting('google_analytics'))
+            : null;
+        $customHeaderJs = function_exists('setting')
+            ? (setting('custom_tracking_header_js') ?: setting('google_tag_manager_code'))
+            : null;
+        $customBodyHtml = function_exists('setting') ? setting('custom_tracking_body_html') : null;
+        $gtmDebugMode = function_exists('setting') ? (bool) setting('gtm_debug_mode', false) : false;
+
+        $resolvedType = $rawType;
+        if (! $resolvedType) {
+            if ($gtmContainerId) {
+                $resolvedType = 'gtm';
+            } elseif ($customHeaderJs || $customBodyHtml) {
+                $resolvedType = 'custom';
+            } elseif ($googleTagManagerId) {
+                $resolvedType = 'id';
+            }
+        }
+
+        $isGtmEnabled = match ($resolvedType) {
+            'gtm' => ! empty($gtmContainerId),
+            'id' => ! empty($googleTagManagerId),
+            'custom' => ! empty($customHeaderJs) || ! empty($customBodyHtml),
+            default => ! empty($gtmContainerId) || ! empty($googleTagManagerId) || ! empty($customHeaderJs) || ! empty($customBodyHtml),
+        };
+
+        if (class_exists(\Botble\Theme\Supports\ThemeSupport::class)) {
+            $resolvedType = \Botble\Theme\Supports\ThemeSupport::getGoogleTagManagerType() ?: $resolvedType;
+            $isGtmEnabled = \Botble\Theme\Supports\ThemeSupport::isGoogleTagManagerEnabled();
+            $gtmDebugMode = \Botble\Theme\Supports\ThemeSupport::isGoogleTagManagerDebugEnabled();
+        }
+
         $tracking = [
-            'google_tag_manager_type' => function_exists('setting') ? setting('google_tag_manager_type') : null,
-            'google_tag_manager_id' => function_exists('setting') ? setting('google_tag_manager_id') : null,
-            'gtm_container_id' => function_exists('setting') ? setting('gtm_container_id') : null,
-            'custom_tracking_header_js' => function_exists('setting') ? setting('custom_tracking_header_js') : null,
-            'custom_tracking_body_html' => function_exists('setting') ? setting('custom_tracking_body_html') : null,
-            'gtm_debug_mode' => function_exists('setting') ? (bool) setting('gtm_debug_mode', false) : false,
-            'is_gtm_enabled' => function_exists('setting') ? (bool) setting('is_gtm_enabled', false) : false,
+            'google_tag_manager_type' => $resolvedType,
+            'google_tag_manager_id' => $googleTagManagerId,
+            'gtm_container_id' => $gtmContainerId,
+            'custom_tracking_header_js' => $customHeaderJs,
+            'custom_tracking_body_html' => $customBodyHtml,
+            'gtm_debug_mode' => $gtmDebugMode,
+            'is_gtm_enabled' => $isGtmEnabled,
         ];
 
         return response()->json([

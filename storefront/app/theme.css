@@ -4,45 +4,73 @@
    ========================================================================== */
 
 :root {
-  /* ------------------------------------------------------------------------
-     1. Surface & Background Colors
-     ------------------------------------------------------------------------ */
-  --theme-bg: #ffffff;
-  --theme-surface: #fffaf6;
-  --theme-surface-subtle: #f3ece6;
-  --theme-surface-elevated: #ffffff;
-  --theme-surface-dark: #1d1714;
-  --theme-surface-dark-subtle: #2b201d;
+  /* Design tokens: colors */
+  /* Neutrals */
+  --bg-canvas: #ccd1dd;        /* page / showcase background */
+  --surface: #ffffff;          /* cards, modals, header */
+  --surface-muted: #f6f6f6;    /* panels: reviews, shipping, search pill, inputs, unselected pills */
+  --ink: #1b1b1b;             /* primary text, price bar, selected pill, icon circles, primary button text-on-light */
+  --ink-muted: #949494;       /* secondary text: descriptions, dates, labels */
+  --ink-muted-strong: #6b6b6b; /* secondary text on --surface-muted for >= 4.5:1 contrast */
+  --on-ink: #ffffff;          /* text/icons placed on --ink backgrounds */
+
+  /* Accents */
+  --accent-danger: #c83e33;   /* favorite/wishlist heart, destructive states */
+  --accent-star: #feaf11;     /* rating stars */
+
+  /* Product swatches (product data only, not brand UI) */
+  --swatch-black: #1b1b1b;
+  --swatch-white: #ffffff;    /* always render with a 1px border of --border */
+  --swatch-greenish: #9db2a0;
+  --swatch-grey: #e0dfe2;
+  --swatch-logan: #a0a0b2;
+
+  /* Derived tokens */
+  --border: #e6e6e8;          /* hairline borders, white swatch outline */
+  --border-strong: #d4d4d8;
+  --focus-ring: #1b1b1b;      /* 2px outline, 2px offset */
+  --ink-hover: #333333;       /* hover on --ink surfaces */
+  --surface-muted-hover: #ededed;
 
   /* ------------------------------------------------------------------------
-     2. Typography Colors
+     1. Surface & Background Colors (Legacy theme mapping)
      ------------------------------------------------------------------------ */
-  --theme-text-primary: #2d211d;
-  --theme-text-secondary: #5d4740;
-  --theme-text-muted: #7f655d;
-  --theme-text-inverse: #fffaf6;
-  --theme-text-gold: #b87c62;
+  --theme-bg: var(--bg-canvas);
+  --theme-surface: var(--surface);
+  --theme-surface-subtle: var(--surface-muted);
+  --theme-surface-elevated: var(--surface);
+  --theme-surface-dark: var(--ink);
+  --theme-surface-dark-subtle: var(--ink-hover);
 
   /* ------------------------------------------------------------------------
-     3. Hairlines, Borders & Dividers
+     2. Typography Colors (Legacy theme mapping)
      ------------------------------------------------------------------------ */
-  --theme-border: #eaded6;
-  --theme-border-subtle: #f5eae4;
-  --theme-border-strong: #2d211d;
-  --theme-border-dark: rgba(255, 255, 255, 0.12);
-  --theme-border-gold: rgba(184, 124, 98, 0.2);
+  --theme-text-primary: var(--ink);
+  --theme-text-secondary: var(--ink-muted);
+  --theme-text-muted: var(--ink-muted);
+  --theme-text-inverse: var(--on-ink);
+  --theme-text-gold: var(--ink);
 
   /* ------------------------------------------------------------------------
-     4. Curated Accent Colors
+     3. Hairlines, Borders & Dividers (Legacy theme mapping)
      ------------------------------------------------------------------------ */
-  --theme-gold: #b87c62;
-  --theme-gold-subtle: #f5e5dd;
-  --theme-gold-dark: #7e4d39;
-  --theme-emerald: #4a7c68;
-  --theme-emerald-subtle: #edf8f2;
-  --theme-amber: #d7a46f;
-  --theme-amber-subtle: #fbf1e8;
-  --theme-crimson: #b94b4b;
+  --theme-border: var(--border);
+  --theme-border-subtle: var(--border);
+  --theme-border-strong: var(--border-strong);
+  --theme-border-dark: var(--border-strong);
+  --theme-border-gold: var(--border);
+
+  /* ------------------------------------------------------------------------
+     4. Curated Accent Colors (Legacy theme mapping)
+     ------------------------------------------------------------------------ */
+  --theme-gold: var(--accent-star);
+  --theme-gold-subtle: var(--surface-muted);
+  --theme-gold-dark: var(--ink);
+  --theme-emerald: var(--ink);
+  --theme-emerald-subtle: var(--surface-muted);
+  --theme-amber: var(--accent-star);
+  --theme-amber-subtle: var(--surface-muted);
+  --theme-crimson: var(--accent-danger);
 
   /* ------------------------------------------------------------------------
      5. Typography Metric Tokens (Inter + Montserrat + Playfair)
@@ -59,13 +87,13 @@
   --tracking-tight: -0.015em;
 
   /* ------------------------------------------------------------------------
-     6. Elevation & Shadows
+     6. Elevation & Shadows (Derived with ink tone)
      ------------------------------------------------------------------------ */
-  --theme-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --theme-shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.06);
-  --theme-shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.08);
-  --theme-shadow-lg: 0 16px 36px -10px rgba(0, 0, 0, 0.12);
-  --theme-shadow-glow: 0 0 28px rgba(197, 168, 128, 0.22);
+  --theme-shadow-xs: 0 1px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+  --theme-shadow-sm: 0 2px 8px -2px color-mix(in srgb, var(--ink) 6%, transparent);
+  --theme-shadow-md: 0 8px 24px -6px color-mix(in srgb, var(--ink) 8%, transparent);
+  --theme-shadow-lg: 0 16px 36px -10px color-mix(in srgb, var(--ink) 12%, transparent);
+  --theme-shadow-glow: none;
 
   /* ------------------------------------------------------------------------
      7. Motion & Transitions (Luxury Choreography)
@@ -81,9 +109,9 @@
   --theme-transition-slow: var(--motion-editorial);
 
   /* Surface & Hairline Refinements */
-  --theme-border-hairline: rgba(45, 33, 29, 0.08);
-  --theme-card-bg: #f9f8f6;
-  --theme-card-border: rgba(45, 33, 29, 0.06);
+  --theme-border-hairline: var(--border);
+  --theme-card-bg: var(--surface);
+  --theme-card-border: var(--border);
 }
 
 /* ==========================================================================
@@ -91,14 +119,25 @@
    ========================================================================== */
 
 body {
-  background-color: var(--theme-bg);
-  color: var(--theme-text-primary);
+  background-color: var(--bg-canvas);
+  color: var(--ink);
   font-family: var(--font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.011em;
   /* Optimized optical tracking for Inter */
   text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--ink);
+  color: var(--on-ink);
+}
+
+/* Global focus visibility */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 /* Modern Geometric Display Heading (Montserrat) */
@@ -119,7 +158,7 @@ body {
   letter-spacing: var(--tracking-editorial);
   text-transform: uppercase;
   font-weight: 600;
-  color: var(--theme-text-muted);
+  color: var(--ink-muted);
 }
 
 .theme-eyebrow-gold {
@@ -129,7 +168,7 @@ body {
   letter-spacing: var(--tracking-editorial);
   text-transform: uppercase;
   font-weight: 600;
-  color: var(--theme-text-primary);
+  color: var(--ink);
 }
 
 /* Section Headlines */
@@ -143,7 +182,7 @@ body {
 /* Standard Body Copy (Inter) */
 .theme-body {
   font-family: var(--font-family-sans);
-  color: var(--theme-text-secondary);
+  color: var(--ink-muted);
   line-height: 1.65;
   font-weight: 400;
   letter-spacing: -0.011em;
@@ -176,8 +215,8 @@ body {
 
 /* Primary Obsidian Button */
 .theme-btn-primary {
-  background-color: var(--theme-surface-dark);
-  color: var(--theme-text-inverse);
+  background-color: var(--ink);
+  color: var(--on-ink);
   font-family: var(--font-family-display);
   font-size: 12px;
   font-weight: 600;
@@ -193,7 +232,7 @@ body {
 }
 
 .theme-btn-primary:hover {
-  background-color: #000000;
+  background-color: var(--ink-hover);
   transform: translateY(-1px);
   box-shadow: var(--theme-shadow-lg);
 }
@@ -205,14 +244,14 @@ body {
 /* Secondary Outline Button */
 .theme-btn-secondary {
   background-color: transparent;
-  color: var(--theme-text-primary);
+  color: var(--ink);
   font-family: var(--font-family-display);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   padding: 14px 28px;
-  border: 1px solid var(--theme-border-strong);
+  border: 1px solid var(--border-strong);
   transition: all var(--theme-transition-base);
   display: inline-flex;
   align-items: center;
@@ -220,25 +259,26 @@ body {
 }
 
 .theme-btn-secondary:hover {
-  background-color: var(--theme-surface-dark);
-  color: var(--theme-text-inverse);
-  border-color: var(--theme-surface-dark);
+  background-color: var(--ink);
+  color: var(--on-ink);
+  border-color: var(--ink);
 }
 
 /* Themed Input Field */
 .theme-input {
-  background-color: #ffffff;
-  border: 1px solid var(--theme-border);
-  color: var(--theme-text-primary);
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--ink);
   font-family: var(--font-family-sans);
   font-size: 13px;
   padding: 12px 16px;
+  border-radius: 16px;
   outline: none;
   transition: border-color var(--theme-transition-fast);
 }
 
 .theme-input:focus {
-  border-color: var(--theme-text-primary);
+  border-color: var(--focus-ring);
 }
 
 /* Themed Badges */
@@ -251,39 +291,38 @@ body {
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   padding: 4px 10px;
-  background-color: rgba(255, 255, 255, 0.92);
+  background-color: var(--surface);
   backdrop-filter: blur(8px);
-  border: 1px solid var(--theme-border-subtle);
-  color: var(--theme-text-primary);
+  border: 1px solid var(--border);
+  color: var(--ink);
 }
 
 .theme-badge-gold {
-  background-color: var(--theme-gold-subtle);
-  border: 1px solid var(--theme-border);
-  color: var(--theme-text-primary);
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--ink);
 }
 
 .theme-badge-emerald {
-  background-color: var(--theme-emerald-subtle);
-  border: 1px solid rgba(5, 150, 105, 0.25);
-  color: var(--theme-emerald);
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--ink);
 }
 
 /* Glassmorphism Overlays */
 .theme-glass-light {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--theme-border-subtle);
+  border: 1px solid var(--border);
 }
 
 .theme-glass-dark {
-  background: rgba(14, 14, 16, 0.88);
+  background: var(--ink);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--theme-border-dark);
+  border: 1px solid var(--border-strong);
 }
-
 
 /* Override any font-serif to modern clean sans typography */
 .font-serif {
@@ -291,11 +330,11 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--theme-border-hairline);
-  box-shadow: 0 4px 20px -2px rgba(45, 33, 29, 0.05);
+  border: 1px solid var(--border);
+  box-shadow: var(--theme-shadow-md);
 }
 
 header.glass,
@@ -312,7 +351,7 @@ header.glass,
   font-weight: 600;
   line-height: 0.96;
   letter-spacing: -0.03em;
-  color: var(--theme-text-primary);
+  color: var(--ink);
 }
 
 .editorial-heading {
@@ -321,7 +360,7 @@ header.glass,
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.025em;
-  color: var(--theme-text-primary);
+  color: var(--ink);
 }
 
 .editorial-title {
@@ -330,7 +369,7 @@ header.glass,
   font-weight: 500;
   line-height: 1.35;
   letter-spacing: -0.015em;
-  color: var(--theme-text-primary);
+  color: var(--ink);
 }
 
 .editorial-eyebrow {
@@ -339,7 +378,7 @@ header.glass,
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--theme-text-muted);
+  color: var(--ink-muted);
 }
 @media (min-width: 640px) {
   .editorial-eyebrow {
@@ -353,12 +392,13 @@ header.glass,
   font-variant-numeric: tabular-nums;
   font-weight: 600;
   letter-spacing: -0.01em;
+  color: var(--ink);
 }
 
 .editorial-meta {
   font-family: var(--font-family-sans);
   font-size: 0.6875rem;
-  color: var(--theme-text-muted);
+  color: var(--ink-muted);
   letter-spacing: 0.01em;
 }
 @media (min-width: 640px) {
@@ -378,6 +418,132 @@ header.glass,
 /* Subtle image reveal transition */
 .luxury-image-hover {
   transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease;
+}
+
+/* ==========================================================================
+   DESIGN SYSTEM COMPONENT MAPPINGS
+   ========================================================================== */
+
+/* Cards, header, modals */
+.theme-card,
+.theme-modal,
+.theme-header {
+  background-color: var(--surface);
+  border-radius: 24px;
+}
+
+/* Inner panels (reviews, shipping, search field) */
+.theme-panel {
+  background-color: var(--surface-muted);
+  border-radius: 16px;
+}
+
+/* Pills (size, category chips, nav chips) */
+.theme-pill {
+  background-color: var(--surface-muted);
+  color: var(--ink);
+  border-radius: 999px;
+  transition: background-color var(--theme-transition-fast), color var(--theme-transition-fast);
+}
+
+.theme-pill:hover {
+  background-color: var(--surface-muted-hover);
+}
+
+.theme-pill-surface {
+  background-color: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+}
+
+/* Selected pill / active state */
+.theme-pill.is-active,
+.theme-pill[aria-selected="true"],
+.theme-pill-active {
+  background-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.theme-pill.is-active:hover,
+.theme-pill[aria-selected="true"]:hover,
+.theme-pill-active:hover {
+  background-color: var(--ink-hover);
+}
+
+/* Primary price / CTA bar */
+.theme-price-cta-bar {
+  background-color: var(--ink);
+  color: var(--on-ink);
+}
+
+.theme-price-cta-bar .theme-cta-btn,
+.theme-cta-pill-btn {
+  background-color: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+}
+
+/* Wishlist heart */
+.theme-wishlist-heart {
+  outline: none;
+}
+.theme-wishlist-heart:not(.is-active) svg,
+.theme-wishlist-heart.is-inactive svg {
+  stroke: var(--ink);
+  fill: transparent;
+}
+.theme-wishlist-heart.is-active svg {
+  fill: var(--accent-danger);
+  stroke: var(--accent-danger);
+}
+
+/* Rating star */
+.theme-rating-star,
+.theme-star svg,
+svg.theme-star {
+  fill: var(--accent-star);
+  color: var(--accent-star);
+}
+
+/* Color swatch circles */
+.theme-swatch-circle {
+  border-radius: 999px;
+}
+.theme-swatch-black { background-color: var(--swatch-black); }
+.theme-swatch-white {
+  background-color: var(--swatch-white);
+  border: 1px solid var(--border);
+}
+.theme-swatch-greenish { background-color: var(--swatch-greenish); }
+.theme-swatch-grey { background-color: var(--swatch-grey); }
+.theme-swatch-logan { background-color: var(--swatch-logan); }
+
+.theme-swatch-label {
+  color: var(--ink);
+}
+
+/* Icon buttons (bell, cart, user) */
+.theme-icon-btn {
+  border-radius: 999px;
+  background-color: var(--surface-muted);
+  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--theme-transition-fast);
+}
+
+.theme-icon-btn:hover {
+  background-color: var(--surface-muted-hover);
+}
+
+/* Hover utilities for ink and surface-muted surfaces */
+.hover-ink:hover {
+  background-color: var(--ink-hover);
+}
+
+.hover-surface-muted:hover {
+  background-color: var(--surface-muted-hover);
 }
 
 /* ==========================================================================
@@ -407,8 +573,8 @@ header.glass,
     height: 2.125rem !important;
     padding-left: 0.75rem !important;
     padding-right: 0.75rem !important;
-    background-color: var(--theme-surface-dark) !important;
-    color: var(--theme-text-inverse) !important;
+    background-color: var(--ink) !important;
+    color: var(--on-ink) !important;
   }
   .product-card-cta-expandable .product-card-cta-label {
     max-width: 110px !important;

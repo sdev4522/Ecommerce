@@ -6,7 +6,7 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import MobileBottomNav from "../components/layout/MobileBottomNav";
 import ClientOverlays from "../components/layout/ClientOverlays";
-import TrackingScripts from "../components/analytics/TrackingScripts";
+import { TrackingHeadScripts, TrackingBodyScripts } from "../components/analytics/TrackingScripts";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { getSiteSettings, getMenuBySlug } from "@/lib/site-config";
@@ -140,11 +140,12 @@ export default async function RootLayout({
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
                 />
+                <TrackingHeadScripts tracking={siteSettings.tracking} />
             </head>
             <body className="min-h-screen flex flex-col bg-[var(--theme-bg)] text-[var(--theme-text-primary)] font-sans antialiased selection:bg-[#b87c62] selection:text-white pb-14 lg:pb-0">
+                <TrackingBodyScripts tracking={siteSettings.tracking} />
                 <CurrencyProvider initialConfig={siteSettings.currency}>
                     <SmoothScrollProvider>
-                        <TrackingScripts tracking={siteSettings.tracking} />
                         <Toaster
                             position="bottom-right"
                             richColors

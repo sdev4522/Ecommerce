@@ -197,17 +197,92 @@ export function getMediaUrl(path?: string | null): string {
 }
 
 /**
+ * Normalizes Website Tracking configuration received from Botble CMS.
+ * Handles auto-detection of tracking mode, cleans whitespace, strips empty values,
+ * and ensures mutual exclusion.
+ */
+export function normalizeWebsiteTracking(raw?: Partial<WebsiteTracking> | null): WebsiteTracking {
+  if (!raw) {
+    return {
+      google_tag_manager_type: null,
+      google_tag_manager_id: null,
+      gtm_container_id: null,
+      custom_tracking_header_js: null,
+      custom_tracking_body_html: null,
+      gtm_debug_mode: false,
+      is_gtm_enabled: false,
+    };
+  }
+
+  const cleanGtmContainerId = raw.gtm_container_id?.trim() || null;
+  const cleanGaId = raw.google_tag_manager_id?.trim() || null;
+  const cleanHeaderJs = raw.custom_tracking_header_js?.trim() || null;
+  const cleanBodyHtml = raw.custom_tracking_body_html?.trim() || null;
+  const debugMode = Boolean(raw.gtm_debug_mode);
+
+  // Normalize type
+  let type: 'gtm' | 'id' | 'custom' | null = null;
+  const rawType = (raw.google_tag_manager_type?.trim() || '').toLowerCase();
+
+  if (rawType === 'gtm') {
+    type = 'gtm';
+  } else if (rawType === 'id') {
+    type = 'id';
+  } else if (rawType === 'custom' || rawType === 'code') {
+    type = 'custom';
+  } else {
+    // Auto-detection fallback if type is empty or unset in CMS
+    if (cleanGtmContainerId) {
+      type = 'gtm';
+    } else if (cleanHeaderJs || cleanBodyHtml) {
+      type = 'custom';
+    } else if (cleanGaId) {
+      type = 'id';
+    }
+  }
+
+  // Determine enabled state based on resolved type and corresponding ID/script presence
+  let isEnabled = false;
+  if (type === 'gtm') {
+    isEnabled = Boolean(cleanGtmContainerId);
+  } else if (type === 'id') {
+    isEnabled = Boolean(cleanGaId);
+  } else if (type === 'custom') {
+    isEnabled = Boolean(cleanHeaderJs || cleanBodyHtml);
+  }
+
+  return {
+    google_tag_manager_type: type,
+    google_tag_manager_id: cleanGaId,
+    gtm_container_id: cleanGtmContainerId,
+    custom_tracking_header_js: cleanHeaderJs,
+    custom_tracking_body_html: cleanBodyHtml,
+    gtm_debug_mode: debugMode,
+    is_gtm_enabled: isEnabled,
+  };
+}
+
+/**
  * Fetch dynamic site settings from Botble CMS
  */
-export async function getSiteSettings(): Promise<SiteSettings> {
+export async function getSiteSettings(options?: { bypassCache?: boolean }): Promise<SiteSettings> {
+  const isDev = process.env.NODE_ENV === 'development';
+  const shouldBypass = options?.bypassCache || isDev;
+
   try {
-    const res = await fetch(`${BOTBLE_API_URL}/site-settings`, {
+    const fetchOptions: RequestInit = {
       headers: {
         'Accept': 'application/json',
-        'X-API-KEY': BOTBLE_API_KEY,
+        ...(BOTBLE_API_KEY ? { 'X-API-KEY': BOTBLE_API_KEY } : {}),
       },
-      next: { revalidate: 30, tags: ['site-settings'] },
-    });
+      // In development mode, bypass caching to immediately reflect Admin changes.
+      // In production, keep 30-second ISR caching with cache tags for on-demand revalidation.
+      ...(shouldBypass
+        ? { cache: 'no-store' }
+        : { next: { revalidate: 30, tags: ['site-settings', 'website-tracking'] } }),
+    };
+
+    const res = await fetch(`${BOTBLE_API_URL}/site-settings`, fetchOptions);
 
     if (res.ok) {
       const json = await res.json();
@@ -231,10 +306,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
             ...json.data.seo,
             seo_og_image: json.data.seo?.seo_og_image ? getMediaUrl(json.data.seo.seo_og_image) : null,
           },
-          tracking: {
-            ...DEFAULT_SITE_SETTINGS.tracking,
-            ...json.data.tracking,
-          },
+          tracking: normalizeWebsiteTracking(json.data.tracking),
         };
       }
     }
@@ -244,6 +316,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   setActiveCurrencyConfig(DEFAULT_CURRENCY_CONFIG);
   return DEFAULT_SITE_SETTINGS;
+}
+
+/**
+ * Dedicated helper to fetch only Website Tracking configuration
+ */
+export async function getWebsiteTracking(options?: { bypassCache?: boolean }): Promise<WebsiteTracking> {
+  const settings = await getSiteSettings(options);
+  return settings.tracking;
 }
 
 /**
