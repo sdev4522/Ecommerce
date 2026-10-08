@@ -6,30 +6,43 @@
 :root {
   /* Design tokens: colors */
   /* Neutrals */
-  --bg-canvas: #ccd1dd;        /* page / showcase background */
-  --surface: #ffffff;          /* cards, modals, header */
-  --surface-muted: #f6f6f6;    /* panels: reviews, shipping, search pill, inputs, unselected pills */
-  --ink: #1b1b1b;             /* primary text, price bar, selected pill, icon circles, primary button text-on-light */
-  --ink-muted: #949494;       /* secondary text: descriptions, dates, labels */
-  --ink-muted-strong: #6b6b6b; /* secondary text on --surface-muted for >= 4.5:1 contrast */
-  --on-ink: #ffffff;          /* text/icons placed on --ink backgrounds */
+  --bg-canvas: #f8f8f8;
+  /* page / showcase background */
+  --surface: #ffffff;
+  /* cards, modals, header */
+  --surface-muted: #f6f6f6;
+  /* panels: reviews, shipping, search pill, inputs, unselected pills */
+  --ink: #1b1b1b;
+  /* primary text, price bar, selected pill, icon circles, primary button text-on-light */
+  --ink-muted: #949494;
+  /* secondary text: descriptions, dates, labels */
+  --ink-muted-strong: #6b6b6b;
+  /* secondary text on --surface-muted for >= 4.5:1 contrast */
+  --on-ink: #ffffff;
+  /* text/icons placed on --ink backgrounds */
 
   /* Accents */
-  --accent-danger: #c83e33;   /* favorite/wishlist heart, destructive states */
-  --accent-star: #feaf11;     /* rating stars */
+  --accent-danger: #c83e33;
+  /* favorite/wishlist heart, destructive states */
+  --accent-star: #feaf11;
+  /* rating stars */
 
   /* Product swatches (product data only, not brand UI) */
   --swatch-black: #1b1b1b;
-  --swatch-white: #ffffff;    /* always render with a 1px border of --border */
+  --swatch-white: #ffffff;
+  /* always render with a 1px border of --border */
   --swatch-greenish: #9db2a0;
   --swatch-grey: #e0dfe2;
   --swatch-logan: #a0a0b2;
 
   /* Derived tokens */
-  --border: #e6e6e8;          /* hairline borders, white swatch outline */
+  --border: #e6e6e8;
+  /* hairline borders, white swatch outline */
   --border-strong: #d4d4d8;
-  --focus-ring: #1b1b1b;      /* 2px outline, 2px offset */
-  --ink-hover: #333333;       /* hover on --ink surfaces */
+  --focus-ring: #1b1b1b;
+  /* 2px outline, 2px offset */
+  --ink-hover: #333333;
+  /* hover on --ink surfaces */
   --surface-muted-hover: #ededed;
 
   /* ------------------------------------------------------------------------
@@ -380,6 +393,7 @@ header.glass,
   text-transform: uppercase;
   color: var(--ink-muted);
 }
+
 @media (min-width: 640px) {
   .editorial-eyebrow {
     font-size: 0.6875rem;
@@ -401,6 +415,7 @@ header.glass,
   color: var(--ink-muted);
   letter-spacing: 0.01em;
 }
+
 @media (min-width: 640px) {
   .editorial-meta {
     font-size: 0.75rem;
@@ -411,6 +426,7 @@ header.glass,
 .tactile-press {
   transition: transform 150ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity 150ms ease;
 }
+
 .tactile-press:active {
   transform: scale(0.97);
 }
@@ -487,11 +503,13 @@ header.glass,
 .theme-wishlist-heart {
   outline: none;
 }
+
 .theme-wishlist-heart:not(.is-active) svg,
 .theme-wishlist-heart.is-inactive svg {
   stroke: var(--ink);
   fill: transparent;
 }
+
 .theme-wishlist-heart.is-active svg {
   fill: var(--accent-danger);
   stroke: var(--accent-danger);
@@ -509,14 +527,27 @@ svg.theme-star {
 .theme-swatch-circle {
   border-radius: 999px;
 }
-.theme-swatch-black { background-color: var(--swatch-black); }
+
+.theme-swatch-black {
+  background-color: var(--swatch-black);
+}
+
 .theme-swatch-white {
   background-color: var(--swatch-white);
   border: 1px solid var(--border);
 }
-.theme-swatch-greenish { background-color: var(--swatch-greenish); }
-.theme-swatch-grey { background-color: var(--swatch-grey); }
-.theme-swatch-logan { background-color: var(--swatch-logan); }
+
+.theme-swatch-greenish {
+  background-color: var(--swatch-greenish);
+}
+
+.theme-swatch-grey {
+  background-color: var(--swatch-grey);
+}
+
+.theme-swatch-logan {
+  background-color: var(--swatch-logan);
+}
 
 .theme-swatch-label {
   color: var(--ink);
@@ -576,6 +607,7 @@ svg.theme-star {
     background-color: var(--ink) !important;
     color: var(--on-ink) !important;
   }
+
   .product-card-cta-expandable .product-card-cta-label {
     max-width: 110px !important;
     opacity: 1 !important;
