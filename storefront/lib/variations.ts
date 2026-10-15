@@ -137,7 +137,7 @@ export function findMatchingVariation(
 
   if (matching.length > 1) {
     // If multiple candidates match (e.g. subset), prefer one that is in-stock or marked default
-    const inStock = matching.find((m) => !m.is_out_of_stock && m.quantity > 0);
+    const inStock = matching.find((m) => !m.is_out_of_stock && (typeof m.quantity !== "number" || m.quantity > 0));
     if (inStock) return inStock;
     const isDefault = matching.find((m) => m.is_default);
     if (isDefault) return isDefault;

@@ -226,7 +226,7 @@ export function normalizeProduct(p: any): Product {
           formatted_sale_price: vSalePrice ? formatPrice(vSalePrice) : undefined,
           original_price: vOriginalPrice,
           formatted_original_price: formatPrice(vOriginalPrice),
-          quantity: typeof v.quantity === 'number' ? v.quantity : 10,
+          quantity: (v.with_storehouse_management ?? p.with_storehouse_management) === false ? undefined : typeof v.quantity === "number" ? v.quantity : 10,
           is_out_of_stock: Boolean(v.is_out_of_stock),
           stock_status_label: v.stock_status_label || (v.is_out_of_stock ? 'Out of stock' : 'In stock'),
           is_default: Boolean(v.is_default),

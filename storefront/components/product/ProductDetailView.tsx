@@ -561,7 +561,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           })}
 
           {/* Stock Scarcity Urgency & Out of Stock Notice */}
-          {activeStock > 0 && activeStock <= 5 && !activeIsOutOfStock && (
+          {typeof activeStock === "number" && activeStock > 0 && activeStock <= 5 && !activeIsOutOfStock && (
             <div className="flex items-center gap-1.5 text-[11px] text-amber-800 bg-amber-50/70 border border-amber-200 px-3 py-1.5">
               <Sparkles size={12} className="text-amber-700 shrink-0" />
               <span>Only {activeStock} pieces remaining in atelier inventory</span>

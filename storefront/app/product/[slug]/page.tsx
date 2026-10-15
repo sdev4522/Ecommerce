@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             priceCurrency: siteSettings.currency?.code || "INR",
             price: product.price,
             availability:
-                product.is_out_of_stock || product.quantity <= 0
+                product.is_out_of_stock || (typeof product.quantity === "number" && product.quantity <= 0)
                     ? "https://schema.org/OutOfStock"
                     : "https://schema.org/InStock",
             itemCondition: "https://schema.org/NewCondition",
