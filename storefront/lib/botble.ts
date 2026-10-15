@@ -12,9 +12,9 @@ interface FetchOptions extends RequestInit {
 
 export async function fetchBotbleAPI<T>(endpoint: string, options: FetchOptions = {}): Promise<T | null> {
   const { params, ...fetchOptions } = options;
-  
+
   let url = `${BOTBLE_API_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
-  
+
   if (params) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -92,7 +92,7 @@ export function cleanImageUrl(url?: string | null): string {
 
 export function normalizeProduct(p: any): Product {
   const fallbackImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=800&auto=format&fit=crop';
-  
+
   const rawImages: string[] = (Array.isArray(p.images) ? p.images : [])
     .map(cleanImageUrl)
     .filter(Boolean);
@@ -116,14 +116,14 @@ export function normalizeProduct(p: any): Product {
   const hoverCandidate = cleanImageUrl(p.hover_image_url);
   const alternateGalleryImage = images.find((img) => img !== mainImage);
   const hoverImage = hoverCandidate || alternateGalleryImage || images[1] || mainImage;
-  
+
   const price = Number(p.price) || 0;
   const originalPrice = Number(p.original_price) || price;
 
   const rawSpecs: Array<{ name: string; value: string }> = Array.isArray(p.specifications)
     ? p.specifications
-        .filter((s: any) => s && s.name && s.value)
-        .map((s: any) => ({ name: String(s.name), value: String(s.value) }))
+      .filter((s: any) => s && s.name && s.value)
+      .map((s: any) => ({ name: String(s.name), value: String(s.value) }))
     : [];
 
   const specifications = [...rawSpecs];
@@ -173,7 +173,7 @@ export function normalizeProduct(p: any): Product {
     original_price: originalPrice,
     original_price_formatted: p.original_price_formatted || formatPrice(originalPrice),
     is_out_of_stock: Boolean(p.is_out_of_stock),
-    quantity: p.quantity ?? 10,
+    quantity: p.with_storehouse_management ? (p.quantity ?? 0) : undefined,
     images,
     image_url: mainImage,
     hover_image_url: hoverImage,
@@ -212,29 +212,29 @@ export function normalizeProduct(p: any): Product {
     fit: p.fit || undefined,
     variations: Array.isArray(p.variations)
       ? p.variations.map((v: any) => {
-          const vPrice = Number(v.price) || price;
-          const vOriginalPrice = Number(v.original_price) || vPrice;
-          const vSalePrice = v.sale_price !== null && v.sale_price !== undefined ? Number(v.sale_price) : undefined;
-          return {
-            id: v.id,
-            product_id: v.product_id,
-            name: v.name || p.name,
-            sku: v.sku || `${p.sku}-${v.id}`,
-            price: vPrice,
-            formatted_price: formatPrice(vPrice),
-            sale_price: vSalePrice,
-            formatted_sale_price: vSalePrice ? formatPrice(vSalePrice) : undefined,
-            original_price: vOriginalPrice,
-            formatted_original_price: formatPrice(vOriginalPrice),
-            quantity: typeof v.quantity === 'number' ? v.quantity : 10,
-            is_out_of_stock: Boolean(v.is_out_of_stock),
-            stock_status_label: v.stock_status_label || (v.is_out_of_stock ? 'Out of stock' : 'In stock'),
-            is_default: Boolean(v.is_default),
-            selected_attributes: v.selected_attributes || [],
-            attributes: v.attributes || {},
-            image_url: cleanImageUrl(v.image_url || v.image) || mainImage,
-          };
-        })
+        const vPrice = Number(v.price) || price;
+        const vOriginalPrice = Number(v.original_price) || vPrice;
+        const vSalePrice = v.sale_price !== null && v.sale_price !== undefined ? Number(v.sale_price) : undefined;
+        return {
+          id: v.id,
+          product_id: v.product_id,
+          name: v.name || p.name,
+          sku: v.sku || `${p.sku}-${v.id}`,
+          price: vPrice,
+          formatted_price: formatPrice(vPrice),
+          sale_price: vSalePrice,
+          formatted_sale_price: vSalePrice ? formatPrice(vSalePrice) : undefined,
+          original_price: vOriginalPrice,
+          formatted_original_price: formatPrice(vOriginalPrice),
+          quantity: typeof v.quantity === 'number' ? v.quantity : 10,
+          is_out_of_stock: Boolean(v.is_out_of_stock),
+          stock_status_label: v.stock_status_label || (v.is_out_of_stock ? 'Out of stock' : 'In stock'),
+          is_default: Boolean(v.is_default),
+          selected_attributes: v.selected_attributes || [],
+          attributes: v.attributes || {},
+          image_url: cleanImageUrl(v.image_url || v.image) || mainImage,
+        };
+      })
       : [],
     attribute_sets: Array.isArray(p.attribute_sets) ? p.attribute_sets : undefined,
     specifications: specifications.length > 0 ? specifications : undefined,

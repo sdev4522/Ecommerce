@@ -47,7 +47,7 @@ export interface ProductVariation {
   formatted_sale_price?: string;
   original_price: number;
   formatted_original_price?: string;
-  quantity: number;
+  quantity?: number;
   is_out_of_stock: boolean;
   stock_status_label?: string;
   is_default?: boolean;
@@ -68,7 +68,7 @@ export interface Product {
   original_price?: number;
   original_price_formatted?: string;
   is_out_of_stock: boolean;
-  quantity: number;
+  quantity?: number;
   images: string[];
   image_url: string;
   hover_image_url?: string;
