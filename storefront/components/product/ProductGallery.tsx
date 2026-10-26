@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Maximize2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import ImageGalleryModal from './ImageGalleryModal';
 
 interface ProductGalleryProps {
@@ -31,6 +31,90 @@ export default function ProductGallery({
   const [isHovered, setIsHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const thumbnailContainerRef = useRef<HTMLDivElement | null>(null);
+  const mainStageRef = useRef<HTMLDivElement | null>(null);
+  const [stageHeight, setStageHeight] = useState<number | null>(null);
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+
+  // Monitor main visual stage height so thumbnails rail height is strictly locked to it
+  useEffect(() => {
+    const stage = mainStageRef.current;
+    if (!stage) return;
+
+    const measureHeight = () => {
+      if (stage) {
+        const h = stage.clientHeight;
+        if (h > 0) setStageHeight(h);
+      }
+    };
+
+    measureHeight();
+
+    const ro = new ResizeObserver(() => {
+      measureHeight();
+    });
+    ro.observe(stage);
+
+    return () => {
+      ro.disconnect();
+    };
+  }, []);
+
+  // Monitor thumbnail container scroll and overflow bounds
+  const checkScrollBounds = useCallback(() => {
+    const el = thumbnailContainerRef.current;
+    if (!el) return;
+    const overflowing = el.scrollHeight > el.clientHeight + 4;
+    setHasOverflow(overflowing);
+    setCanScrollUp(overflowing && el.scrollTop > 6);
+    setCanScrollDown(overflowing && el.scrollTop + el.clientHeight < el.scrollHeight - 6);
+  }, []);
+
+  useEffect(() => {
+    checkScrollBounds();
+    const el = thumbnailContainerRef.current;
+    if (!el) return;
+
+    el.addEventListener('scroll', checkScrollBounds, { passive: true });
+    window.addEventListener('resize', checkScrollBounds, { passive: true });
+
+    const ro = new ResizeObserver(() => {
+      checkScrollBounds();
+    });
+    ro.observe(el);
+
+    return () => {
+      el.removeEventListener('scroll', checkScrollBounds);
+      window.removeEventListener('resize', checkScrollBounds);
+      ro.disconnect();
+    };
+  }, [checkScrollBounds, images, stageHeight]);
+
+  const handleThumbnailWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const container = thumbnailContainerRef.current;
+    if (!container) return;
+    if (container.scrollHeight > container.clientHeight) {
+      const isDown = e.deltaY > 0;
+      const canDown = container.scrollTop + container.clientHeight < container.scrollHeight - 1;
+      const canUp = container.scrollTop > 1;
+
+      if ((isDown && canDown) || (!isDown && canUp)) {
+        e.stopPropagation();
+      }
+    }
+  };
+
+  const scrollThumbnails = (direction: 'up' | 'down') => {
+    const el = thumbnailContainerRef.current;
+    if (!el) return;
+    const scrollAmount = Math.max(140, el.clientHeight * 0.5);
+    el.scrollBy({
+      top: direction === 'up' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   // Embla setup for touch-friendly mobile carousel
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -75,14 +159,24 @@ export default function ProductGallery({
     }
   }, [externalActiveImage, images, emblaApi]);
 
-  // Auto-scroll active thumbnail into view
+  // Auto-scroll active thumbnail inside thumbnail container without jumping page
   useEffect(() => {
-    if (thumbnailRefs.current[selectedIndex]) {
-      thumbnailRefs.current[selectedIndex]?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
+    const thumb = thumbnailRefs.current[selectedIndex];
+    const container = thumbnailContainerRef.current;
+    if (thumb && container) {
+      const thumbTop = thumb.offsetTop;
+      const thumbHeight = thumb.offsetHeight;
+      const containerScrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+
+      if (thumbTop < containerScrollTop) {
+        container.scrollTo({ top: Math.max(0, thumbTop - 12), behavior: 'smooth' });
+      } else if (thumbTop + thumbHeight > containerScrollTop + containerHeight) {
+        container.scrollTo({
+          top: thumbTop + thumbHeight - containerHeight + 12,
+          behavior: 'smooth',
+        });
+      }
     }
   }, [selectedIndex]);
 
@@ -151,44 +245,100 @@ export default function ProductGallery({
         {/* Left Vertical Thumbnails Rail */}
         {hasMultiple && (
           <div
-            role="tablist"
-            aria-label="Product thumbnails"
-            className="flex flex-col gap-2.5 w-16 xl:w-20 shrink-0 max-h-[580px] overflow-y-auto no-scrollbar py-0.5"
+            style={stageHeight ? { height: `${stageHeight}px`, maxHeight: `${stageHeight}px` } : undefined}
+            className="relative flex flex-col items-center shrink-0 w-16 xl:w-20 max-h-[700px] self-start"
           >
-            {images.map((img, idx) => {
-              const isSelected = selectedIndex === idx;
-              return (
-                <button
-                  key={idx}
-                  ref={(el) => {
-                    if (el) thumbnailRefs.current[idx] = el;
-                  }}
-                  role="tab"
-                  aria-selected={isSelected}
-                  tabIndex={0}
-                  onKeyDown={(e) => handleKeyDownThumbnail(e, idx)}
-                  onClick={() => selectImage(idx)}
-                  className={`relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 transition-all duration-200 cursor-pointer shrink-0 ${isSelected
-                    ? 'border-2 border-neutral-950 ring-2 ring-neutral-950/20 shadow-xs scale-[0.98]'
-                    : 'border border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 hover:scale-[1.02]'
+            {/* Top scroll chevron button */}
+            {hasOverflow && (
+              <button
+                type="button"
+                disabled={!canScrollUp}
+                onClick={() => scrollThumbnails('up')}
+                className={`w-full py-1 mb-1.5 flex items-center justify-center rounded-lg border transition-all duration-200 shrink-0 z-20 ${
+                  canScrollUp
+                    ? 'opacity-100 text-neutral-700 hover:text-black bg-white hover:bg-neutral-50 border-neutral-200/90 shadow-2xs cursor-pointer hover:scale-[1.02]'
+                    : 'opacity-0 pointer-events-none border-transparent h-0 py-0 mb-0'
+                }`}
+                aria-label="Scroll thumbnails up"
+              >
+                <ChevronUp size={15} />
+              </button>
+            )}
+
+            {/* Subtle Gradient Overlays indicating hidden thumbnails */}
+            {hasOverflow && canScrollUp && (
+              <div className="pointer-events-none absolute top-7 left-0 right-0 h-6 bg-gradient-to-b from-white/95 to-transparent z-10" />
+            )}
+            {hasOverflow && canScrollDown && (
+              <div className="pointer-events-none absolute bottom-7 left-0 right-0 h-6 bg-gradient-to-t from-white/95 to-transparent z-10" />
+            )}
+
+            {/* Scrollable Thumbnails List */}
+            <div
+              ref={thumbnailContainerRef}
+              data-lenis-prevent="true"
+              data-lenis-prevent-wheel="true"
+              data-lenis-prevent-touch="true"
+              onScroll={checkScrollBounds}
+              onWheel={handleThumbnailWheel}
+              role="tablist"
+              aria-label="Product thumbnails"
+              className="flex-1 min-h-0 w-full flex flex-col gap-2.5 overflow-y-auto overscroll-contain py-0.5 no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:h-0"
+            >
+              {images.map((img, idx) => {
+                const isSelected = selectedIndex === idx;
+                return (
+                  <button
+                    key={idx}
+                    ref={(el) => {
+                      if (el) thumbnailRefs.current[idx] = el;
+                    }}
+                    role="tab"
+                    aria-selected={isSelected}
+                    tabIndex={0}
+                    onKeyDown={(e) => handleKeyDownThumbnail(e, idx)}
+                    onClick={() => selectImage(idx)}
+                    className={`relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-100 transition-all duration-200 cursor-pointer shrink-0 ${
+                      isSelected
+                        ? 'border-2 border-neutral-950 ring-2 ring-neutral-950/20 shadow-xs scale-[0.98]'
+                        : 'border border-neutral-200/90 hover:border-neutral-400 opacity-70 hover:opacity-100 hover:scale-[1.02]'
                     }`}
-                  aria-label={`View photo ${idx + 1} of ${images.length}`}
-                >
-                  <Image
-                    src={img}
-                    alt={`${productName} thumbnail ${idx + 1}`}
-                    fill
-                    sizes="(max-width: 1280px) 64px, 80px"
-                    className="object-cover object-top transition-transform duration-300 hover:scale-105"
-                  />
-                </button>
-              );
-            })}
+                    aria-label={`View photo ${idx + 1} of ${images.length}`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`${productName} thumbnail ${idx + 1}`}
+                      fill
+                      sizes="(max-width: 1280px) 64px, 80px"
+                      className="object-cover object-top transition-transform duration-300 hover:scale-105"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Bottom scroll chevron button */}
+            {hasOverflow && (
+              <button
+                type="button"
+                disabled={!canScrollDown}
+                onClick={() => scrollThumbnails('down')}
+                className={`w-full py-1 mt-1.5 flex items-center justify-center rounded-lg border transition-all duration-200 shrink-0 z-20 ${
+                  canScrollDown
+                    ? 'opacity-100 text-neutral-700 hover:text-black bg-white hover:bg-neutral-50 border-neutral-200/90 shadow-2xs cursor-pointer hover:scale-[1.02]'
+                    : 'opacity-0 pointer-events-none border-transparent h-0 py-0 mt-0'
+                }`}
+                aria-label="Scroll thumbnails down"
+              >
+                <ChevronDown size={15} />
+              </button>
+            )}
           </div>
         )}
 
         {/* Dominant Main Visual Stage */}
         <div
+          ref={mainStageRef}
           className="relative flex-1 aspect-[9/10] max-h-[700px] bg-neutral-100/90 rounded-2xl sm:rounded-3xl overflow-hidden cursor-zoom-in group border border-neutral-200/60 shadow-xs focus:outline-hidden focus:ring-2 focus:ring-neutral-950"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}

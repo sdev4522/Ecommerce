@@ -792,6 +792,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           productId={product.id}
           productSlug={product.slug}
           productName={product.name}
+          brandName={product.brand?.name}
           initialReviewsAvg={product.reviews_avg}
           initialReviewsCount={product.reviews_count}
         />

@@ -1,6 +1,11 @@
 const BOTBLE_API_URL = process.env.NEXT_PUBLIC_BOTBLE_API_URL || 'http://localhost:8000/api/v1';
 const BOTBLE_URL = process.env.NEXT_PUBLIC_BOTBLE_URL || 'http://localhost:8000';
 const BOTBLE_API_KEY = typeof window === 'undefined' ? (process.env.BOTBLE_API_KEY || '') : '';
+const BOTBLE_MEDIA_URL =
+  process.env.NEXT_PUBLIC_BOTBLE_MEDIA_URL ||
+  process.env.NEXT_PUBLIC_MEDIA_URL ||
+  process.env.NEXT_PUBLIC_CDN_URL ||
+  '';
 
 export interface SocialLink {
   name: string;
@@ -178,22 +183,50 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
 };
 
 /**
- * Normalizes any media URL to point to Botble's storage URL
+ * Normalizes any media URL to point to Botble's CDN or storage URL.
+ * Handles relative dot-paths (./image.webp), storage prefixes, localhost ports,
+ * and CDN redirects seamlessly.
  */
 export function getMediaUrl(path?: string | null): string {
-  if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) {
+  if (!path || typeof path !== 'string') return '';
+  let clean = path.trim();
+  if (!clean) return '';
+
+  // 1. If it's already an absolute HTTP/HTTPS URL
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
     // If it points to backend without port 8000, adjust if needed
-    if (path.includes('localhost/storage')) {
-      return path.replace('localhost/storage', 'localhost:8000/storage');
+    if (clean.includes('localhost/storage')) {
+      clean = clean.replace('localhost/storage', 'localhost:8000/storage');
     }
-    return path;
+
+    // Clean any accidental /./ inside the path
+    clean = clean.replace(/\/+\.\/+/g, '/');
+
+    // If a media CDN URL is configured and URL points to backend storage, rewrite to media base
+    if (BOTBLE_MEDIA_URL && clean.startsWith(`${BOTBLE_URL}/storage/`)) {
+      clean = clean.replace(`${BOTBLE_URL}/storage/`, `${BOTBLE_MEDIA_URL.replace(/\/+$/, '')}/`);
+    }
+
+    // Strip Botble generated thumbnail suffixes (-150x150, -400x400, -800x800, -thumb)
+    return clean.replace(/-(\d+x\d+|thumb)(\.[a-zA-Z0-9]+)$/i, '$2');
   }
-  const clean = path.startsWith('/') ? path.slice(1) : path;
-  if (clean.startsWith('storage/')) {
-    return `${BOTBLE_URL}/${clean}`;
+
+  // 2. Strip any leading relative traversal dots and slashes (e.g. "./", "../", "/", ".\")
+  clean = clean.replace(/^(\.+[\/\\]+|\/+)+/, '');
+
+  // Strip Botble generated thumbnail suffixes
+  clean = clean.replace(/-(\d+x\d+|thumb)(\.[a-zA-Z0-9]+)$/i, '$2');
+
+  // 3. Resolve base URL (CDN or Botble /storage/)
+  if (BOTBLE_MEDIA_URL) {
+    const mediaBase = BOTBLE_MEDIA_URL.replace(/\/+$/, '');
+    // If path starts with 'storage/', strip it for CDN
+    const cdnPath = clean.startsWith('storage/') ? clean.slice('storage/'.length) : clean;
+    return `${mediaBase}/${cdnPath}`;
   }
-  return `${BOTBLE_URL}/storage/${clean}`;
+
+  const cleanPath = clean.startsWith('storage/') ? clean : `storage/${clean}`;
+  return `${BOTBLE_URL.replace(/\/+$/, '')}/${cleanPath}`;
 }
 
 /**

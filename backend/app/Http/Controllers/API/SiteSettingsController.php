@@ -20,9 +20,23 @@ class SiteSettingsController extends Controller
 
         // 2. Resolve Theme Options & Site Identity
         $siteTitle = function_exists('theme_option') ? (theme_option('site_title') ?: 'LUNE') : 'LUNE';
-        $logo = function_exists('theme_option') ? theme_option('logo') : null;
-        $logoLight = function_exists('theme_option') ? theme_option('logo_light') : null;
-        $favicon = function_exists('theme_option') ? (theme_option('favicon') ?: (function_exists('setting') ? setting('admin_favicon') : null)) : null;
+        $resolveMedia = function (?string $path): ?string {
+            if (! $path) {
+                return null;
+            }
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return $path;
+            }
+            if (class_exists(\Botble\Media\Facades\RvMedia::class)) {
+                return \Botble\Media\Facades\RvMedia::getImageUrl($path);
+            }
+            return $path;
+        };
+
+        $logo = function_exists('theme_option') ? $resolveMedia(theme_option('logo')) : null;
+        $logoLight = function_exists('theme_option') ? $resolveMedia(theme_option('logo_light')) : null;
+        $rawFavicon = function_exists('theme_option') ? (theme_option('favicon') ?: (function_exists('setting') ? setting('admin_favicon') : null)) : null;
+        $favicon = $resolveMedia($rawFavicon);
         $copyright = function_exists('theme_option') 
             ? (theme_option('copyright') ?: ('Copyright © ' . date('Y') . ' LUNE. All rights reserved.'))
             : ('Copyright © ' . date('Y') . ' LUNE. All rights reserved.');
@@ -68,7 +82,7 @@ class SiteSettingsController extends Controller
         $seo = [
             'seo_title' => function_exists('theme_option') ? (theme_option('seo_title') ?: $siteTitle) : $siteTitle,
             'seo_description' => function_exists('theme_option') ? theme_option('seo_description') : null,
-            'seo_og_image' => function_exists('theme_option') ? theme_option('seo_og_image') : null,
+            'seo_og_image' => function_exists('theme_option') ? $resolveMedia(theme_option('seo_og_image')) : null,
             'seo_index' => function_exists('theme_option') ? (theme_option('seo_index', '1') !== '0') : true,
         ];
 

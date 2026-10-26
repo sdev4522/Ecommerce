@@ -1,6 +1,7 @@
 import { Product, ProductCategory, BlogPost, BlogCategory, ProductReview } from './types';
 import { MOCK_PRODUCTS, MOCK_CATEGORIES } from './mock-data';
 import { formatPrice } from './utils';
+import { getMediaUrl } from './site-config';
 
 const BOTBLE_API_URL = process.env.NEXT_PUBLIC_BOTBLE_API_URL || 'http://localhost:8000/api/v1';
 const BOTBLE_URL = process.env.NEXT_PUBLIC_BOTBLE_URL || 'http://localhost:8000';
@@ -72,22 +73,7 @@ export async function fetchBotbleAPI<T>(endpoint: string, options: FetchOptions 
 // ----------------------------------------------------------------------
 
 export function cleanImageUrl(url?: string | null): string {
-  if (!url || typeof url !== 'string') return '';
-  let resolved = url.trim();
-  if (!resolved) return '';
-
-  // Ensure relative storage paths have BOTBLE_URL prefixed
-  if (!resolved.startsWith('http://') && !resolved.startsWith('https://')) {
-    if (!resolved.startsWith('/')) resolved = `/${resolved}`;
-    if (!resolved.startsWith('/storage/')) resolved = `/storage${resolved}`;
-    resolved = `${BOTBLE_URL}${resolved}`;
-  }
-
-  // Strip Botble generated thumbnail suffixes (-150x150, -400x400, -800x800, -thumb)
-  // which fail to load for media that do not have generated thumbnails on disk
-  resolved = resolved.replace(/-(\d+x\d+|thumb)(\.[a-zA-Z0-9]+)$/i, '$2');
-
-  return resolved;
+  return getMediaUrl(url);
 }
 
 export function normalizeProduct(p: any): Product {
@@ -284,7 +270,7 @@ function resolveCategoryImage(c: any): string {
   // Check if real custom image
   const rawImg = c.image || c.image_with_sizes?.origin || c.image_with_sizes?.medium;
   if (rawImg && typeof rawImg === "string" && !rawImg.includes("400x400") && !rawImg.includes("150x150") && !rawImg.includes("800x800")) {
-    return rawImg.startsWith("http") ? rawImg : `${BOTBLE_URL}/storage/${rawImg}`;
+    return getMediaUrl(rawImg);
   }
 
   return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=85";
