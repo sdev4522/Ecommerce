@@ -9,6 +9,7 @@ import { useCartStore } from '../../store/useCartStore';
 import { useCurrency } from '../providers/CurrencyProvider';
 import { findMatchingVariation, resolveInitialAttributes } from '../../lib/variations';
 import { toast } from 'sonner';
+import ProductVariationChips from './ProductVariationChips';
 import {
   Dialog,
   DialogContent,
@@ -211,29 +212,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
               )}
 
               {/* Size Selection */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] uppercase tracking-wider text-neutral-500 font-medium font-display">
-                    Size: <strong className="text-neutral-900">{selectedSize}</strong>
-                  </span>
-                  <span className="text-[11px] text-neutral-400">Regular Fit</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {(product.sizes || ['Standard']).map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => handleSizeSelect(size)}
-                      className={`min-w-[42px] h-10 px-3 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border ${
-                        selectedSize === size
-                          ? 'bg-neutral-950 text-white border-neutral-950 shadow-xs'
-                          : 'bg-white text-neutral-800 border-neutral-200 hover:border-neutral-900'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <ProductVariationChips
+                label="SELECT SIZE:"
+                selectedValue={selectedSize}
+                options={product.sizes || ['Standard']}
+                onSelect={handleSizeSelect}
+                headerRightAction={<span className="text-[11px] text-neutral-400">Regular Fit</span>}
+              />
 
               {/* Quantity & CTA with shadcn Button */}
               <div className="pt-2 flex items-center space-x-3">
